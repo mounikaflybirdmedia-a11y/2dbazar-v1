@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Service Receiver Dashboard — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="navUser" style="font-size:14px;color:#64748b;"></span>
+      <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
+    </div>
+  </div>
+</nav>
+<div class="dashboard">
+  <div class="sidebar">
+    <div class="sidebar-logo">👤 Customer Panel</div>
+    <div class="sidebar-menu">
+      <div class="sidebar-label">Services</div>
+      <div class="sidebar-item active" onclick="showTab('overview',this)"><span class="icon">📊</span> Overview</div>
+      <div class="sidebar-item" onclick="showTab('post',this)"><span class="icon">➕</span> Post Request</div>
+      <div class="sidebar-item" onclick="showTab('myrequests',this)"><span class="icon">📋</span> My Requests</div>
+      <div class="sidebar-item" onclick="showTab('browse',this)"><span class="icon">🔍</span> Find Services</div>
+      <div class="sidebar-label">Account</div>
+      <div class="sidebar-item" onclick="showTab('profile',this)"><span class="icon">👤</span> Profile</div>
+    </div>
+  </div>
+  <div class="dash-main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview">
+      <div class="dash-header">
+        <h1>Hello, <span id="recvName" class="text-green"></span> 👋</h1>
+        <button class="btn btn-green btn-sm" onclick="showTab('post',document.querySelector('[onclick*=post]'))">+ Post Request</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-info"><h3 id="statTotal">0</h3><p>Total Requests</p></div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-info"><h3 id="statOpen">0</h3><p>Open</p></div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-info"><h3 id="statDone">0</h3><p>Completed</p></div></div>
+        <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-info"><h3>4.9</h3><p>Avg Rating Given</p></div></div>
+      </div>
+      <h3 style="margin-bottom:14px;">My Recent Requests</h3>
+      <div id="overviewReqs"></div>
+    </div>
+
+    <!-- POST -->
+    <div id="tab-post" class="hidden">
+      <div class="dash-header"><h1>Post a Service Request</h1></div>
+      <div class="card" style="padding:28px;max-width:580px;">
+        <div class="form-group"><label>Service Type</label>
+          <select id="reqService"><option>Plumbing</option><option>Electrical</option><option>Carpentry</option><option>Cleaning</option><option>Painting</option><option>AC Repair</option><option>Appliance Repair</option></select>
+        </div>
+        <div class="form-group"><label>Work Description</label><textarea id="reqDesc" placeholder="Describe the work in detail..."></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Budget (₹)</label><input type="number" id="reqBudget" placeholder="e.g. 500"/></div>
+          <div class="form-group"><label>Budget Type</label><select id="reqBudgetType"><option>Hourly</option><option>Fixed</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Location</label>
+            <select id="reqLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+          </div>
+          <div class="form-group"><label>Preferred Date</label><input type="date" id="reqDate"/></div>
+        </div>
+        <div class="form-group"><label>Preferred Time Slot</label>
+          <select id="reqTime"><option>Morning (8am–12pm)</option><option>Afternoon (12pm–5pm)</option><option>Evening (5pm–8pm)</option><option>Flexible</option></select>
+        </div>
+        <button class="btn btn-green btn-full" onclick="postRequest()">Submit Request →</button>
+      </div>
+    </div>
+
+    <!-- MY REQUESTS -->
+    <div id="tab-myrequests" class="hidden">
+      <div class="dash-header"><h1>My Service Requests</h1></div>
+      <div id="myReqsList" style="display:flex;flex-direction:column;gap:12px;"></div>
+      <div id="emptyReqs" class="empty-state hidden"><div class="empty-icon">📋</div><h3>No requests yet</h3><button class="btn btn-green btn-sm mt-2" onclick="showTab('post',null)">Post First Request</button></div>
+    </div>
+
+    <!-- BROWSE SERVICES -->
+    <div id="tab-browse" class="hidden">
+      <div class="dash-header"><h1>Find Services</h1></div>
+      <div class="filter-bar" style="margin-bottom:16px;">
+        <select id="bsCat"><option value="">All Categories</option><option>Plumbing</option><option>Electrical</option><option>Carpentry</option><option>Cleaning</option><option>Painting</option><option>AC Repair</option><option>Appliance Repair</option></select>
+        <button class="btn btn-green btn-sm" onclick="renderBrowseServices()">Filter</button>
+      </div>
+      <div class="grid-3" id="browseServicesGrid"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="tab-profile" class="hidden">
+      <div class="dash-header"><h1>My Profile</h1></div>
+      <div class="card" style="padding:28px;max-width:500px;">
+        <div class="form-group"><label>Full Name</label><input type="text" id="rName"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="rPhone"/></div>
+          <div class="form-group"><label>Location</label><select id="rLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
+        </div>
+        <button class="btn btn-green" onclick="toast('Profile saved!')">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="../js/data.js"></script>
+<script>
+function showTab(id,el){
+  document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(id==='myrequests') renderMyReqs();
+  if(id==='browse') renderBrowseServices();
+}
+function init(){
+  const user=Auth.current();
+  if(!user){window.location.href='login.html';return;}
+  document.getElementById('navUser').textContent=user.name;
+  document.getElementById('recvName').textContent=user.name.split(' ')[0];
+  document.getElementById('rName').value=user.name;
+  document.getElementById('rPhone').value=user.phone||'';
+  const reqs=DB.get('service_requests').filter(r=>r.userId===user.id);
+  document.getElementById('statTotal').textContent=reqs.length;
+  document.getElementById('statOpen').textContent=reqs.filter(r=>r.status==='Open').length;
+  document.getElementById('statDone').textContent=reqs.filter(r=>r.status==='Accepted').length;
+  renderOverviewReqs(reqs.slice(0,3));
+}
+function renderOverviewReqs(list){
+  document.getElementById('overviewReqs').innerHTML=list.length?list.map(r=>`
+    <div class="card" style="padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div style="font-weight:600;">${r.service} Request</div>
+        <div style="font-size:13px;color:#64748b;">${r.desc.substring(0,60)}...</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;">📍 ${r.location} · 💰 ₹${r.budget} · ${r.date||'Flexible'}</div>
+      </div>
+      <span class="chip ${r.status==='Open'?'chip-blue':r.status==='Accepted'?'chip-green':'chip-gray'}">${r.status}</span>
+    </div>`).join(''):
+    '<div class="empty-state"><div class="empty-icon">📋</div><h3>No requests yet</h3><p>Post a service request to get started.</p></div>';
+}
+function renderMyReqs(){
+  const user=Auth.current();
+  const reqs=DB.get('service_requests').filter(r=>r.userId===user.id);
+  const empty=document.getElementById('emptyReqs');
+  if(!reqs.length){document.getElementById('myReqsList').innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  document.getElementById('myReqsList').innerHTML=reqs.map(r=>`
+    <div class="card" style="padding:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:16px;font-weight:700;">${r.service} Request</div>
+          <div style="font-size:14px;color:#475569;margin-top:4px;">${r.desc}</div>
+        </div>
+        <span class="chip ${r.status==='Open'?'chip-blue':r.status==='Accepted'?'chip-green':'chip-gray'}">${r.status}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:#64748b;margin:12px 0;">
+        <span>📍 ${r.location}</span><span>💰 ₹${r.budget} (${r.budgetType||'Flexible'})</span>
+        <span>📅 ${r.date||'Flexible'}</span><span>🕐 ${r.time||'Flexible'}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-green btn-sm" onclick="openWA('919999999999','Update on my ${encodeURIComponent(r.service)} request.')">💬 Chat</button>
+        <button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="cancelReq('${r.id}')">Cancel</button>
+      </div>
+    </div>`).join('');
+}
+function renderBrowseServices(){
+  const cat=document.getElementById('bsCat').value;
+  let list=DB.get('services');
+  if(cat) list=list.filter(s=>s.category===cat);
+  document.getElementById('browseServicesGrid').innerHTML=list.map(s=>`
+    <div class="card" style="position:relative;">
+      <img class="card-img" src="${s.img}" onerror="this.src='https://placehold.co/400x200/25D366/fff?text=${encodeURIComponent(s.category)}'"/>
+      <span class="badge badge-orange badge-top">${s.badge}</span>
+      <div class="card-body">
+        <div style="font-size:11px;color:#64748b;font-weight:600;margin-bottom:4px;">${s.category}</div>
+        <div class="card-title">${s.title}</div>
+        <div class="card-price">₹${s.price}/${s.unit}</div>
+        <div class="card-location">📍 ${s.location}</div>
+        <button class="btn btn-green btn-full btn-sm" onclick="openWA('919999999999','Hi, I need ${encodeURIComponent(s.title)} service.')">💬 Chat Now</button>
+      </div>
+    </div>`).join('');
+}
+function postRequest(){
+  const desc=document.getElementById('reqDesc').value.trim();
+  if(!desc){toast('Please describe the work','error');return;}
+  const user=Auth.current();
+  const reqs=DB.get('service_requests');
+  reqs.push({
+    id:'req'+Date.now(),
+    service:document.getElementById('reqService').value,
+    desc,budget:document.getElementById('reqBudget').value,
+    budgetType:document.getElementById('reqBudgetType').value,
+    location:document.getElementById('reqLoc').value,
+    date:document.getElementById('reqDate').value,
+    time:document.getElementById('reqTime').value,
+    userId:user.id,status:'Open',ts:Date.now()
+  });
+  DB.set('service_requests',reqs);
+  toast('Request posted! Providers will contact you soon.');
+  document.getElementById('reqDesc').value='';
+  document.getElementById('reqBudget').value='';
+  const myReqs=reqs.filter(r=>r.userId===user.id);
+  document.getElementById('statTotal').textContent=myReqs.length;
+  document.getElementById('statOpen').textContent=myReqs.filter(r=>r.status==='Open').length;
+  showTab('myrequests',null);
+}
+function cancelReq(id){
+  const reqs=DB.get('service_requests').filter(r=>r.id!==id);
+  DB.set('service_requests',reqs);
+  toast('Request cancelled!');renderMyReqs();
+}
+init();
+</script>
+</body></html>

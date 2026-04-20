@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin Dashboard — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:13px;background:#ef4444;color:#fff;padding:4px 10px;border-radius:6px;font-weight:600;">ADMIN</span>
+      <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
+    </div>
+  </div>
+</nav>
+<div class="dashboard">
+  <div class="sidebar">
+    <div class="sidebar-logo">⚙️ Admin Panel</div>
+    <div class="sidebar-menu">
+      <div class="sidebar-label">Overview</div>
+      <div class="sidebar-item active" onclick="showTab('overview',this)"><span class="icon">📊</span> Dashboard</div>
+      <div class="sidebar-label">Management</div>
+      <div class="sidebar-item" onclick="showTab('users',this)"><span class="icon">👥</span> Users</div>
+      <div class="sidebar-item" onclick="showTab('services',this)"><span class="icon">🔧</span> Services</div>
+      <div class="sidebar-item" onclick="showTab('jobs',this)"><span class="icon">💼</span> Jobs</div>
+      <div class="sidebar-item" onclick="showTab('products',this)"><span class="icon">🛒</span> Products</div>
+      <div class="sidebar-item" onclick="showTab('properties',this)"><span class="icon">🏠</span> Properties</div>
+      <div class="sidebar-label">Reports</div>
+      <div class="sidebar-item" onclick="showTab('analytics',this)"><span class="icon">📈</span> Analytics</div>
+      <div class="sidebar-item" onclick="showTab('settings',this)"><span class="icon">⚙️</span> Settings</div>
+    </div>
+  </div>
+  <div class="dash-main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview">
+      <div class="dash-header">
+        <h1>Admin Dashboard 🛡️</h1>
+        <span style="font-size:13px;color:#64748b;">Last updated: <span id="lastUpdated"></span></span>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-info"><h3 id="totalUsers">0</h3><p>Total Users</p></div></div>
+        <div class="stat-card"><div class="stat-icon">🔧</div><div class="stat-info"><h3 id="totalServices">0</h3><p>Services Listed</p></div></div>
+        <div class="stat-card"><div class="stat-icon">💼</div><div class="stat-info"><h3 id="totalJobs">0</h3><p>Active Jobs</p></div></div>
+        <div class="stat-card"><div class="stat-icon">🛒</div><div class="stat-info"><h3 id="totalProducts">0</h3><p>Products Listed</p></div></div>
+        <div class="stat-card"><div class="stat-icon">🏠</div><div class="stat-info"><h3 id="totalProperties">0</h3><p>Properties</p></div></div>
+        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-info"><h3 id="totalReqs">0</h3><p>Service Requests</p></div></div>
+      </div>
+      <!-- CHARTS (CSS-based bars) -->
+      <div class="grid-2" style="margin-bottom:24px;">
+        <div class="card" style="padding:24px;">
+          <h3 style="margin-bottom:16px;">Module Activity</h3>
+          <div id="moduleChart"></div>
+        </div>
+        <div class="card" style="padding:24px;">
+          <h3 style="margin-bottom:16px;">User Roles Breakdown</h3>
+          <div id="roleChart"></div>
+        </div>
+      </div>
+      <h3 style="margin-bottom:14px;">Recent Registrations</h3>
+      <div class="table-wrap" id="recentUsersTable"></div>
+    </div>
+
+    <!-- USERS -->
+    <div id="tab-users" class="hidden">
+      <div class="dash-header"><h1>User Management</h1><span id="userCountBadge" class="tag"></span></div>
+      <div class="filter-bar" style="margin-bottom:16px;">
+        <input type="text" id="userSearch" placeholder="Search by name or email..." oninput="filterUsers()"/>
+        <select id="roleFilter" onchange="filterUsers()">
+          <option value="">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="service_provider">Service Provider</option>
+          <option value="service_receiver">Customer</option>
+          <option value="employer">Employer</option>
+          <option value="job_seeker">Job Seeker</option>
+          <option value="seller">Seller</option>
+          <option value="buyer">Buyer</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Location</th><th>Actions</th></tr></thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div id="tab-services" class="hidden">
+      <div class="dash-header"><h1>Services Management</h1></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Category</th><th>Price</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="servicesTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- JOBS -->
+    <div id="tab-jobs" class="hidden">
+      <div class="dash-header"><h1>Jobs Management</h1></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Company</th><th>Salary</th><th>Location</th><th>Openings</th><th>Actions</th></tr></thead>
+          <tbody id="jobsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div id="tab-products" class="hidden">
+      <div class="dash-header"><h1>Products Management</h1></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Seller</th><th>Condition</th><th>Actions</th></tr></thead>
+          <tbody id="productsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROPERTIES -->
+    <div id="tab-properties" class="hidden">
+      <div class="dash-header"><h1>Properties Management</h1></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Type</th><th>Price</th><th>Location</th><th>Owner</th><th>Actions</th></tr></thead>
+          <tbody id="propsAdminTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="tab-analytics" class="hidden">
+      <div class="dash-header"><h1>Platform Analytics</h1></div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-info"><h3>↑ 24%</h3><p>Growth This Month</p></div></div>
+        <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-info"><h3 id="anaApps">0</h3><p>Job Applications</p></div></div>
+        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-info"><h3 id="anaReqs">0</h3><p>Service Requests</p></div></div>
+        <div class="stat-card"><div class="stat-icon">🤍</div><div class="stat-info"><h3 id="anaWish">0</h3><p>Wishlist Items</p></div></div>
+      </div>
+      <div class="card" style="padding:24px;margin-top:16px;">
+        <h3 style="margin-bottom:16px;">Category Distribution</h3>
+        <div id="catDistrib"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tab-settings" class="hidden">
+      <div class="dash-header"><h1>Platform Settings</h1></div>
+      <div class="card" style="padding:28px;max-width:560px;">
+        <div class="form-group"><label>Platform Name</label><input type="text" value="2D Bazar"/></div>
+        <div class="form-group"><label>Support WhatsApp</label><input type="text" value="+91 9999999999"/></div>
+        <div class="form-group"><label>Support Email</label><input type="email" value="info@2dbazar.com"/></div>
+        <div class="form-group"><label>Default Location</label><select><option>Vijayanagaram</option><option>Vizianagaram</option></select></div>
+        <div class="form-group"><label>Listings Per Page</label><select><option>12</option><option>24</option><option>48</option></select></div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+            <input type="checkbox" checked/> Require approval for new listings
+          </label>
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+            <input type="checkbox" checked/> Enable WhatsApp floating button
+          </label>
+        </div>
+        <button class="btn btn-green" onclick="toast('Settings saved!')">Save Settings</button>
+        <button class="btn btn-outline" style="margin-left:10px;" onclick="resetData()">Reset All Data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script>
+const ROLE_LABELS={admin:'Admin',service_provider:'Provider',service_receiver:'Customer',employer:'Employer',job_seeker:'Job Seeker',seller:'Seller',buyer:'Buyer'};
+const ROLE_CHIPS={admin:'chip-red',service_provider:'chip-green',service_receiver:'chip-blue',employer:'chip-orange',job_seeker:'chip-blue',seller:'chip-green',buyer:'chip-gray'};
+
+function showTab(id,el){
+  document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(id==='users') renderUsers();
+  if(id==='services') renderServicesTable();
+  if(id==='jobs') renderJobsTable();
+  if(id==='products') renderProductsTable();
+  if(id==='properties') renderPropsTable();
+  if(id==='analytics') renderAnalytics();
+}
+
+function init(){
+  const user=Auth.current();
+  if(!user||user.role!=='admin'){window.location.href='login.html';return;}
+  document.getElementById('lastUpdated').textContent=new Date().toLocaleString('en-IN');
+  const users=DB.get('users');
+  const services=DB.get('services');
+  const jobs=DB.get('jobs');
+  const products=DB.get('products');
+  const properties=DB.get('properties');
+  const reqs=DB.get('service_requests');
+  document.getElementById('totalUsers').textContent=users.length;
+  document.getElementById('totalServices').textContent=services.length;
+  document.getElementById('totalJobs').textContent=jobs.length;
+  document.getElementById('totalProducts').textContent=products.length;
+  document.getElementById('totalProperties').textContent=properties.length;
+  document.getElementById('totalReqs').textContent=reqs.length;
+  renderModuleChart(services.length,jobs.length,products.length,properties.length);
+  renderRoleChart(users);
+  renderRecentUsers(users.slice(-5).reverse());
+}
+
+function bar(label,val,max,color){
+  const pct=Math.max(5,Math.round((val/max)*100));
+  return `<div style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span>${label}</span><span style="font-weight:700;">${val}</span></div>
+    <div style="background:#f1f5f9;border-radius:10px;height:10px;overflow:hidden;">
+      <div style="width:${pct}%;height:100%;background:${color};border-radius:10px;transition:width 0.6s;"></div>
+    </div>
+  </div>`;
+}
+function renderModuleChart(s,j,p,pr){
+  const max=Math.max(s,j,p,pr,1);
+  document.getElementById('moduleChart').innerHTML=
+    bar('Services',s,max,'#25D366')+bar('Jobs',j,max,'#1a73e8')+bar('Products',p,max,'#7c3aed')+bar('Properties',pr,max,'#b45309');
+}
+function renderRoleChart(users){
+  const counts={};
+  users.forEach(u=>{counts[u.role]=(counts[u.role]||0)+1;});
+  const max=Math.max(...Object.values(counts),1);
+  document.getElementById('roleChart').innerHTML=
+    Object.entries(counts).map(([r,c])=>bar(ROLE_LABELS[r]||r,c,max,'#25D366')).join('');
+}
+function renderRecentUsers(list){
+  document.getElementById('recentUsersTable').innerHTML=`<table>
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Location</th></tr></thead>
+    <tbody>${list.map(u=>`<tr>
+      <td><strong>${u.name}</strong></td>
+      <td style="font-size:13px;">${u.email}</td>
+      <td><span class="chip ${ROLE_CHIPS[u.role]||'chip-gray'}">${ROLE_LABELS[u.role]||u.role}</span></td>
+      <td style="font-size:13px;">${u.location||'—'}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+let allUsers=[];
+function renderUsers(){
+  allUsers=DB.get('users');
+  document.getElementById('userCountBadge').textContent=allUsers.length+' users';
+  filterUsers();
+}
+function filterUsers(){
+  const q=document.getElementById('userSearch').value.toLowerCase();
+  const role=document.getElementById('roleFilter').value;
+  let list=allUsers;
+  if(q) list=list.filter(u=>u.name.toLowerCase().includes(q)||u.email.toLowerCase().includes(q));
+  if(role) list=list.filter(u=>u.role===role);
+  document.getElementById('usersTable').innerHTML=list.map(u=>`<tr>
+    <td><div style="font-weight:600;">${u.name}</div><div style="font-size:12px;color:#64748b;">${u.phone||'—'}</div></td>
+    <td style="font-size:13px;">${u.email}</td>
+    <td><span class="chip ${ROLE_CHIPS[u.role]||'chip-gray'}">${ROLE_LABELS[u.role]||u.role}</span></td>
+    <td style="font-size:13px;">${u.location||'—'}</td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteUser('${u.id}')">Remove</button></td>
+  </tr>`).join('');
+}
+function deleteUser(id){
+  if(!confirm('Remove this user?')) return;
+  const users=DB.get('users').filter(u=>u.id!==id);
+  DB.set('users',users);allUsers=users;toast('User removed!');filterUsers();
+  document.getElementById('totalUsers').textContent=users.length;
+}
+
+function renderServicesTable(){
+  const list=DB.get('services');
+  document.getElementById('servicesTable').innerHTML=list.map(s=>`<tr>
+    <td style="font-size:13px;font-weight:600;">${s.title}</td>
+    <td>${s.category}</td>
+    <td style="color:#25D366;font-weight:700;">₹${s.price}/${s.unit}</td>
+    <td style="font-size:13px;">${s.location}</td>
+    <td><span class="chip chip-green">${s.status||'Active'}</span></td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteService('${s.id}')">Remove</button></td>
+  </tr>`).join('');
+}
+function deleteService(id){
+  const list=DB.get('services').filter(s=>s.id!==id);DB.set('services',list);
+  toast('Service removed!');renderServicesTable();document.getElementById('totalServices').textContent=list.length;
+}
+
+function renderJobsTable(){
+  const list=DB.get('jobs');
+  document.getElementById('jobsTable').innerHTML=list.map(j=>`<tr>
+    <td style="font-size:13px;font-weight:600;">${j.title}</td>
+    <td style="font-size:13px;">${j.company}</td>
+    <td style="font-size:13px;">${j.salary}</td>
+    <td style="font-size:13px;">${j.location}</td>
+    <td style="text-align:center;">${j.openings}</td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteJob('${j.id}')">Remove</button></td>
+  </tr>`).join('');
+}
+function deleteJob(id){
+  const list=DB.get('jobs').filter(j=>j.id!==id);DB.set('jobs',list);
+  toast('Job removed!');renderJobsTable();document.getElementById('totalJobs').textContent=list.length;
+}
+
+function renderProductsTable(){
+  const list=DB.get('products');
+  document.getElementById('productsTable').innerHTML=list.map(p=>`<tr>
+    <td style="font-size:13px;font-weight:600;">${p.name}</td>
+    <td style="font-size:13px;">${p.category}</td>
+    <td style="color:#25D366;font-weight:700;">${formatPrice(p.price)}</td>
+    <td style="font-size:13px;">${p.seller}</td>
+    <td><span class="chip ${p.condition==='New'?'chip-green':'chip-orange'}">${p.condition}</span></td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProduct('${p.id}')">Remove</button></td>
+  </tr>`).join('');
+}
+function deleteProduct(id){
+  const list=DB.get('products').filter(p=>p.id!==id);DB.set('products',list);
+  toast('Product removed!');renderProductsTable();document.getElementById('totalProducts').textContent=list.length;
+}
+
+function renderPropsTable(){
+  const list=DB.get('properties');
+  document.getElementById('propsAdminTable').innerHTML=list.map(p=>`<tr>
+    <td style="font-size:13px;font-weight:600;">${p.title}</td>
+    <td><span class="chip chip-orange">${p.type}</span></td>
+    <td style="color:#25D366;font-weight:700;">${formatPrice(p.price)}</td>
+    <td style="font-size:13px;">${p.location}</td>
+    <td style="font-size:13px;">${p.owner}</td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProp('${p.id}')">Remove</button></td>
+  </tr>`).join('');
+}
+function deleteProp(id){
+  const list=DB.get('properties').filter(p=>p.id!==id);DB.set('properties',list);
+  toast('Property removed!');renderPropsTable();document.getElementById('totalProperties').textContent=list.length;
+}
+
+function renderAnalytics(){
+  const apps=DB.get('job_applications');
+  const reqs=DB.get('service_requests');
+  const wl=DB.get('wishlist')||[];
+  document.getElementById('anaApps').textContent=apps.length;
+  document.getElementById('anaReqs').textContent=reqs.length;
+  document.getElementById('anaWish').textContent=wl.length;
+  const cats={};
+  DB.get('services').forEach(s=>{cats[s.category]=(cats[s.category]||0)+1;});
+  DB.get('products').forEach(p=>{cats[p.category]=(cats[p.category]||0)+1;});
+  const max=Math.max(...Object.values(cats),1);
+  document.getElementById('catDistrib').innerHTML=Object.entries(cats).map(([k,v])=>bar(k,v,max,'#25D366')).join('');
+}
+
+function resetData(){
+  if(!confirm('Reset all data to defaults? This cannot be undone.')) return;
+  ['services','jobs','products','properties','service_requests','job_applications','wishlist','offers'].forEach(k=>localStorage.removeItem('2dbazar_'+k));
+  toast('Data reset. Refresh to reload defaults.');
+  setTimeout(()=>location.reload(),1500);
+}
+
+init();
+</script>
+</body></html>

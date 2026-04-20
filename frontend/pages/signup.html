@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sign Up — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card" style="max-width:520px;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:36px;margin-bottom:8px;">🛒</div>
+      <h2>Join 2D Bazar</h2>
+      <p>Create your free account</p>
+    </div>
+    <!-- STEP 1: Role Selection -->
+    <div id="step1">
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:12px;">Select your role:</label>
+      <div class="role-grid">
+        <div class="role-option" onclick="selectRole('service_provider',this)"><div class="role-icon">🔧</div>Service Provider</div>
+        <div class="role-option" onclick="selectRole('service_receiver',this)"><div class="role-icon">👤</div>Need a Service</div>
+        <div class="role-option" onclick="selectRole('employer',this)"><div class="role-icon">🏢</div>Employer / HR</div>
+        <div class="role-option" onclick="selectRole('job_seeker',this)"><div class="role-icon">💼</div>Job Seeker</div>
+        <div class="role-option" onclick="selectRole('seller',this)"><div class="role-icon">🛒</div>Sell Products</div>
+        <div class="role-option" onclick="selectRole('buyer',this)"><div class="role-icon">🛍️</div>Buy Products</div>
+      </div>
+      <button class="btn btn-green btn-full mt-2" onclick="goStep2()">Next →</button>
+    </div>
+    <!-- STEP 2: Personal Info -->
+    <div id="step2" class="hidden">
+      <div class="form-row">
+        <div class="form-group"><label>Full Name</label><input type="text" id="name" placeholder="Your full name"/></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="phone" placeholder="10-digit mobile"/></div>
+      </div>
+      <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="you@example.com"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="Min 6 characters"/></div>
+      <div class="form-group">
+        <label>Location</label>
+        <select id="location">
+          <option value="">Select city</option>
+          <option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option>
+          <option>Salur</option><option>Parvathipuram</option><option>Palasa</option>
+        </select>
+      </div>
+      <div id="extraFields"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline" onclick="goStep1()">← Back</button>
+        <button class="btn btn-green" style="flex:1;" onclick="doSignup()">Create Account →</button>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:14px;margin-top:16px;">Already have an account? <a href="login.html" style="color:#25D366;font-weight:600;">Login</a></p>
+  </div>
+</div>
+<script src="../js/data.js"></script>
+<script>
+let selectedRole = '';
+const DASH_MAP = {
+  admin:'admin.html', service_provider:'dashboard-provider.html',
+  service_receiver:'dashboard-receiver.html', employer:'dashboard-employer.html',
+  job_seeker:'dashboard-seeker.html', seller:'dashboard-seller.html', buyer:'dashboard-buyer.html'
+};
+function selectRole(role, el) {
+  selectedRole = role;
+  document.querySelectorAll('.role-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function goStep2() {
+  if (!selectedRole) { toast('Please select a role','error'); return; }
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+  const extra = document.getElementById('extraFields');
+  if (selectedRole === 'service_provider') {
+    extra.innerHTML = `
+      <div class="form-row">
+        <div class="form-group"><label>Service Category</label>
+          <select id="category"><option>Plumbing</option><option>Electrical</option><option>Carpentry</option><option>Cleaning</option><option>Painting</option><option>AC Repair</option><option>Appliance Repair</option></select>
+        </div>
+        <div class="form-group"><label>Hourly Rate (₹)</label><input type="number" id="rate" placeholder="e.g. 300"/></div>
+      </div>`;
+  } else if (selectedRole === 'employer') {
+    extra.innerHTML = `<div class="form-group"><label>Company Name</label><input type="text" id="company" placeholder="Your company name"/></div>`;
+  }
+}
+function goStep1() {
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+}
+function doSignup() {
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const location = document.getElementById('location').value;
+  if (!name||!phone||!email||!password||!location) { toast('Please fill all fields','error'); return; }
+  if (password.length < 6) { toast('Password must be at least 6 characters','error'); return; }
+  const data = { name, phone, email, password, location, role: selectedRole };
+  if (selectedRole === 'service_provider') {
+    data.category = document.getElementById('category')?.value;
+    data.rate = document.getElementById('rate')?.value;
+  }
+  if (selectedRole === 'employer') {
+    data.company = document.getElementById('company')?.value;
+  }
+  const result = Auth.signup(data);
+  if (result.error) { toast(result.error,'error'); return; }
+  toast('Account created successfully!');
+  setTimeout(() => { window.location.href = DASH_MAP[selectedRole]||'../index.html'; }, 900);
+}
+if(Auth.current()) window.location.href='../index.html';
+</script>
+</body></html>

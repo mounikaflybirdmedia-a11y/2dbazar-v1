@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>2D Bazar — Vijayanagaram's Complete Marketplace</title>
+<meta name="description" content="2D Bazar: Find trusted services, jobs, products and properties near you in Vijayanagaram."/>
+<link rel="stylesheet" href="css/style.css"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-badge">2D</span> Bazar
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="active">Home</a>
+      <a href="pages/services.html">Services</a>
+      <a href="pages/jobs.html">Jobs</a>
+      <a href="pages/marketplace.html">Marketplace</a>
+      <a href="pages/properties.html">Properties</a>
+    </div>
+    <div class="nav-actions" id="navActions">
+      <a href="pages/login.html" class="btn btn-outline btn-sm" id="loginBtn">Login</a>
+      <a href="pages/signup.html" class="btn btn-green btn-sm" id="signupBtn">Post Free Ad</a>
+      <div id="userMenu" class="hidden" style="position:relative;">
+        <button onclick="toggleUserMenu()" class="btn btn-sm" id="userBtn" style="background:#f1f5f9;gap:8px;">
+          <span id="userAvatar" style="background:#25D366;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;"></span>
+          <span id="userName"></span> ▾
+        </button>
+        <div id="userDropdown" class="hidden" style="position:absolute;right:0;top:44px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:180px;z-index:999;overflow:hidden;">
+          <a id="dashboardLink" href="#" style="display:block;padding:12px 16px;font-size:14px;font-weight:500;border-bottom:1px solid #f1f5f9;">⚡ My Dashboard</a>
+          <button onclick="logoutUser()" style="display:block;width:100%;text-align:left;padding:12px 16px;font-size:14px;font-weight:500;background:none;border:none;cursor:pointer;font-family:Poppins,sans-serif;color:#ef4444;">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+    <button class="nav-menu-btn" onclick="toggleMobileNav()">☰</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <h1>Welcome to <span>2D Bazar</span> 🛍️</h1>
+    <p>Find Trusted Services, Top Jobs, Best Deals & Dream Properties Near You</p>
+    <div class="hero-search">
+      <input type="text" id="heroSearch" placeholder="Search services, products, jobs, properties..." />
+      <button onclick="handleSearch()">🔍 Search</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><h3>500+</h3><p>Service Providers</p></div>
+      <div class="hero-stat"><h3>1,200+</h3><p>Products Listed</p></div>
+      <div class="hero-stat"><h3>300+</h3><p>Job Openings</p></div>
+      <div class="hero-stat"><h3>150+</h3><p>Properties</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORY ICONS -->
+<section style="background:#fff;padding:30px 20px;border-bottom:1px solid #e2e8f0;">
+  <div class="container">
+    <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;">
+      <a href="pages/services.html?cat=Plumbing" class="cat-chip">🔧 Plumbing</a>
+      <a href="pages/services.html?cat=Electrical" class="cat-chip">⚡ Electrical</a>
+      <a href="pages/services.html?cat=Carpentry" class="cat-chip">🪵 Carpentry</a>
+      <a href="pages/services.html?cat=Cleaning" class="cat-chip">🧹 Cleaning</a>
+      <a href="pages/services.html?cat=Painting" class="cat-chip">🎨 Painting</a>
+      <a href="pages/services.html?cat=AC Repair" class="cat-chip">❄️ AC Repair</a>
+      <a href="pages/marketplace.html?cat=Mobiles" class="cat-chip">📱 Mobiles</a>
+      <a href="pages/marketplace.html?cat=Cars" class="cat-chip">🚗 Cars</a>
+      <a href="pages/marketplace.html?cat=Bikes" class="cat-chip">🏍️ Bikes</a>
+      <a href="pages/properties.html?type=House" class="cat-chip">🏠 Houses</a>
+      <a href="pages/jobs.html" class="cat-chip">💼 Jobs</a>
+    </div>
+  </div>
+</section>
+
+<!-- 4 MODULE CARDS -->
+<section class="modules">
+  <div class="container">
+    <div class="section-header">
+      <h2>Everything You Need, <span>All in One Place</span></h2>
+      <p>Vijayanagaram's most trusted platform for services, jobs, buying & selling</p>
+    </div>
+    <div class="modules-grid">
+      <div class="module-card" onclick="window.location.href='pages/services.html'">
+        <div class="module-icon">🔧</div>
+        <h3>Services</h3>
+        <p>Book trusted plumbers, electricians, carpenters & more for your home or office.</p>
+        <span class="module-count">500+ Providers</span>
+      </div>
+      <div class="module-card" onclick="window.location.href='pages/jobs.html'">
+        <div class="module-icon">💼</div>
+        <h3>Jobs</h3>
+        <p>Find your dream job or hire the best local talent in Vijayanagaram district.</p>
+        <span class="module-count">300+ Openings</span>
+      </div>
+      <div class="module-card" onclick="window.location.href='pages/marketplace.html'">
+        <div class="module-icon">🛒</div>
+        <h3>Marketplace</h3>
+        <p>Buy & sell mobiles, electronics, cars, bikes and furniture at the best prices.</p>
+        <span class="module-count">1,200+ Listings</span>
+      </div>
+      <div class="module-card" onclick="window.location.href='pages/properties.html'">
+        <div class="module-icon">🏠</div>
+        <h3>Properties</h3>
+        <p>Discover plots, houses and apartments for sale or rent near you.</p>
+        <span class="module-count">150+ Properties</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED SERVICES -->
+<section class="section section-gray">
+  <div class="container">
+    <div class="section-header">
+      <h2>⭐ Top Rated <span>Services</span></h2>
+      <p>Verified & trusted professionals ready to help you</p>
+    </div>
+    <div class="grid-3" id="featuredServices"></div>
+    <div class="text-center mt-3">
+      <a href="pages/services.html" class="btn btn-outline">View All Services →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>🔥 Latest <span>Listings</span></h2>
+      <p>Fresh deals on mobiles, cars, bikes and more</p>
+    </div>
+    <div class="grid-4" id="featuredProducts"></div>
+    <div class="text-center mt-3">
+      <a href="pages/marketplace.html" class="btn btn-outline">Browse Marketplace →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED JOBS -->
+<section class="section section-gray">
+  <div class="container">
+    <div class="section-header">
+      <h2>💼 Latest <span>Jobs</span></h2>
+      <p>Hiring now in Vijayanagaram and nearby districts</p>
+    </div>
+    <div class="grid-2" id="featuredJobs"></div>
+    <div class="text-center mt-3">
+      <a href="pages/jobs.html" class="btn btn-outline">View All Jobs →</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>💬 What Our <span>Users Say</span></h2>
+    </div>
+    <div class="grid-3" id="testimonials"></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section section-gray">
+  <div class="container">
+    <div class="section-header">
+      <h2>⚙️ How <span>2D Bazar</span> Works</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:30px;text-align:center;">
+      <div><div style="font-size:48px;margin-bottom:12px;">📝</div><h3 style="margin-bottom:8px;">1. Post or Browse</h3><p style="color:#64748b;font-size:14px;">Create a free listing or browse thousands of services, jobs & products.</p></div>
+      <div><div style="font-size:48px;margin-bottom:12px;">💬</div><h3 style="margin-bottom:8px;">2. Connect</h3><p style="color:#64748b;font-size:14px;">Chat directly via WhatsApp with verified providers, sellers & employers.</p></div>
+      <div><div style="font-size:48px;margin-bottom:12px;">✅</div><h3 style="margin-bottom:8px;">3. Deal Done</h3><p style="color:#64748b;font-size:14px;">Finalize your deal, book the service or get hired — it's that simple!</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h2><span>2D</span> Bazar</h2>
+        <p>Vijayanagaram's most trusted local marketplace. Find services, jobs, products and properties all in one place.</p>
+        <div style="margin-top:16px;display:flex;gap:12px;">
+          <a href="#" style="color:#25D366;font-size:22px;">📘</a>
+          <a href="#" style="color:#25D366;font-size:22px;">📸</a>
+          <a href="https://wa.me/919999999999" style="color:#25D366;font-size:22px;">💬</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="pages/services.html">🔧 Services</a>
+        <a href="pages/jobs.html">💼 Jobs</a>
+        <a href="pages/marketplace.html">🛒 Marketplace</a>
+        <a href="pages/properties.html">🏠 Properties</a>
+      </div>
+      <div class="footer-col">
+        <h4>Dashboards</h4>
+        <a href="pages/dashboard-provider.html">Provider Dashboard</a>
+        <a href="pages/dashboard-employer.html">Employer Dashboard</a>
+        <a href="pages/dashboard-seller.html">Seller Dashboard</a>
+        <a href="pages/admin.html">Admin Panel</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact Us</h4>
+        <a href="tel:+919999999999">📞 +91 99999 99999</a>
+        <a href="mailto:info@2dbazar.com">✉️ info@2dbazar.com</a>
+        <a href="https://wa.me/919999999999">💬 WhatsApp Us</a>
+        <p style="font-size:13px;margin-top:8px;">📍 Vijayanagaram, AP</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 2D Bazar. All rights reserved.</p>
+      <p>Made with ❤️ in Vijayanagaram</p>
+    </div>
+  </div>
+</footer>
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/919999999999" class="wa-float" title="Chat on WhatsApp">💬</a>
+
+<style>
+.cat-chip{background:#f1f5f9;color:#1a1a2e;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:600;white-space:nowrap;transition:all .2s;display:inline-block;}
+.cat-chip:hover{background:#25D366;color:#fff;}
+</style>
+
+<script src="js/data.js"></script>
+<script>
+// ── NAVBAR AUTH STATE ─────────────────────────────────────
+function initNavbar() {
+  const user = Auth.current();
+  if (user) {
+    document.getElementById('loginBtn').classList.add('hidden');
+    document.getElementById('signupBtn').classList.add('hidden');
+    document.getElementById('userMenu').classList.remove('hidden');
+    document.getElementById('userAvatar').textContent = user.avatar || user.name[0];
+    document.getElementById('userName').textContent = user.name.split(' ')[0];
+    const dashMap = {
+      admin:'admin.html', service_provider:'dashboard-provider.html',
+      service_receiver:'dashboard-receiver.html', employer:'dashboard-employer.html',
+      job_seeker:'dashboard-seeker.html', seller:'dashboard-seller.html',
+      buyer:'dashboard-buyer.html'
+    };
+    const link = dashMap[user.role] || 'index.html';
+    document.getElementById('dashboardLink').href = 'pages/' + link;
+  }
+}
+function toggleUserMenu() {
+  document.getElementById('userDropdown').classList.toggle('hidden');
+}
+function logoutUser() {
+  Auth.logout(); window.location.reload();
+}
+function toggleMobileNav() {
+  const nl = document.getElementById('navLinks');
+  nl.style.display = nl.style.display === 'flex' ? 'none' : 'flex';
+  nl.style.flexDirection = 'column';
+  nl.style.position = 'absolute';
+  nl.style.top = '68px'; nl.style.left = '0'; nl.style.right = '0';
+  nl.style.background = '#fff'; nl.style.padding = '10px'; nl.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)';
+}
+function handleSearch() {
+  const q = document.getElementById('heroSearch').value.trim();
+  if (q) window.location.href = 'pages/services.html?q=' + encodeURIComponent(q);
+}
+document.getElementById('heroSearch').addEventListener('keypress', e => { if(e.key==='Enter') handleSearch(); });
+
+// ── RENDER FEATURED SERVICES ─────────────────────────────
+function renderFeaturedServices() {
+  const services = DB.get('services').slice(0,6);
+  document.getElementById('featuredServices').innerHTML = services.map(s => `
+    <div class="card" style="position:relative;">
+      <img class="card-img" src="${s.img}" alt="${s.title}" onerror="this.src='https://placehold.co/400x200/25D366/fff?text=${encodeURIComponent(s.category)}'"/>
+      <span class="badge badge-orange badge-top">${s.badge}</span>
+      <div class="card-body">
+        <div class="card-title">${s.title}</div>
+        <div class="card-price">₹${s.price}/${s.unit}</div>
+        <div class="card-location">📍 ${s.location}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+          <span class="rating">${stars(s.rating)}</span>
+          <span style="font-size:12px;color:#64748b;">${s.rating} (${s.reviews})</span>
+        </div>
+        <button class="btn btn-green btn-full btn-sm" onclick="openWA('919999999999','Hi, I need ${encodeURIComponent(s.title)} service.')">
+          💬 Chat on WhatsApp
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+// ── RENDER FEATURED PRODUCTS ──────────────────────────────
+function renderFeaturedProducts() {
+  const products = DB.get('products').slice(0,8);
+  document.getElementById('featuredProducts').innerHTML = products.map(p => `
+    <div class="card" style="cursor:pointer;" onclick="window.location.href='pages/marketplace.html'">
+      <img class="card-img" src="${p.img}" alt="${p.name}" style="height:170px;" onerror="this.src='https://placehold.co/300x170/f1f5f9/64748b?text=Image'"/>
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;">${p.category}</div>
+        <div class="card-title" style="font-size:14px;">${p.name}</div>
+        <div class="card-price" style="font-size:16px;">${formatPrice(p.price)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:#64748b;">📍 ${p.location}</span>
+          <span class="chip ${p.condition==='New'?'chip-green':'chip-orange'}">${p.condition}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── RENDER FEATURED JOBS ──────────────────────────────────
+function renderFeaturedJobs() {
+  const jobs = DB.get('jobs').slice(0,4);
+  document.getElementById('featuredJobs').innerHTML = jobs.map(j => `
+    <div class="card" style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+        <div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:4px;">${j.title}</div>
+          <div style="font-size:13px;color:#64748b;">🏢 ${j.company}</div>
+        </div>
+        <span class="chip chip-blue">${j.type}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:13px;color:#64748b;">
+        <span>💰 ${j.salary}</span>
+        <span>📍 ${j.location}</span>
+        <span>🕐 ${j.shift} Shift</span>
+        <span>👥 ${j.openings} Opening${j.openings>1?'s':''}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${j.perks.slice(0,3).map(pk=>`<span class="tag">${pk}</span>`).join('')}
+      </div>
+      <button class="btn btn-green btn-sm" onclick="window.location.href='pages/jobs.html'">Apply Now →</button>
+    </div>`).join('');
+}
+
+// ── TESTIMONIALS ───────────────────────────────────────────
+const TESTIMONIALS = [
+  { name:'Suresh Varma', role:'Home Owner', rating:5, text:'Booked an electrician from 2D Bazar — he arrived within 2 hours. Excellent service and reasonable rates!', city:'Vijayanagaram' },
+  { name:'Priya Lakshmi', role:'Job Seeker', rating:5, text:'Got placed as a telecaller within a week of applying on 2D Bazar. Life-changing platform!', city:'Vizianagaram' },
+  { name:'Kiran Reddy', role:'Car Seller', rating:4, text:'Sold my car within 3 days of posting. Got a great deal with zero commission. Highly recommended!', city:'Bobbili' },
+  { name:'Anitha Devi', role:'Property Buyer', rating:5, text:'Found my dream plot at the right price. The filters made it so easy to narrow down options.', city:'Salur' },
+  { name:'Ramesh Babu', role:'Business Owner', rating:5, text:'Hired 3 staff members through the jobs portal. Quality candidates and fast results!', city:'Parvathipuram' },
+  { name:'Meena Kumari', role:'Service Provider', rating:4, text:'As a cleaning professional, 2D Bazar gets me consistent bookings every week. Great platform!', city:'Vijayanagaram' },
+];
+function renderTestimonials() {
+  document.getElementById('testimonials').innerHTML = TESTIMONIALS.map(t => `
+    <div class="testimonial-card">
+      <div class="stars">${'★'.repeat(t.rating)}${'☆'.repeat(5-t.rating)}</div>
+      <p>"${t.text}"</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">${t.name[0]}</div>
+        <div><div class="reviewer-name">${t.name}</div><div class="reviewer-role">${t.role} · ${t.city}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+initNavbar();
+renderFeaturedServices();
+renderFeaturedProducts();
+renderFeaturedJobs();
+renderTestimonials();
+</script>
+</body>
+</html>

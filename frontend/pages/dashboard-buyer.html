@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Buyer Dashboard — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="navUser" style="font-size:14px;color:#64748b;"></span>
+      <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
+    </div>
+  </div>
+</nav>
+<div class="dashboard">
+  <div class="sidebar">
+    <div class="sidebar-logo">🛍️ Buyer Panel</div>
+    <div class="sidebar-menu">
+      <div class="sidebar-label">Shopping</div>
+      <div class="sidebar-item active" onclick="showTab('overview',this)"><span class="icon">📊</span> Overview</div>
+      <div class="sidebar-item" onclick="showTab('wishlist',this)"><span class="icon">🤍</span> Wishlist</div>
+      <div class="sidebar-item" onclick="showTab('browse',this)"><span class="icon">🔍</span> Browse Products</div>
+      <div class="sidebar-label">Properties</div>
+      <div class="sidebar-item" onclick="showTab('propwish',this)"><span class="icon">🏠</span> Saved Properties</div>
+      <div class="sidebar-label">Account</div>
+      <div class="sidebar-item" onclick="showTab('profile',this)"><span class="icon">👤</span> My Profile</div>
+    </div>
+  </div>
+  <div class="dash-main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview">
+      <div class="dash-header">
+        <h1>Welcome, <span id="buyerName" class="text-green"></span> 🛍️</h1>
+        <a href="marketplace.html" class="btn btn-sm" style="background:#7c3aed;color:#fff;">Browse Marketplace</a>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">🤍</div><div class="stat-info"><h3 id="statWish">0</h3><p>Wishlist Items</p></div></div>
+        <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-info"><h3>5</h3><p>Inquiries Sent</p></div></div>
+        <div class="stat-card"><div class="stat-icon">🏠</div><div class="stat-info"><h3 id="statPropWish">0</h3><p>Saved Properties</p></div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-info"><h3>2</h3><p>Deals Closed</p></div></div>
+      </div>
+      <h3 style="margin-bottom:14px;">Saved Items</h3>
+      <div class="grid-4" id="overviewWish"></div>
+    </div>
+
+    <!-- WISHLIST -->
+    <div id="tab-wishlist" class="hidden">
+      <div class="dash-header"><h1>My Wishlist</h1></div>
+      <div class="grid-4" id="wishlistGrid"></div>
+      <div id="emptyWish" class="empty-state hidden"><div class="empty-icon">🤍</div><h3>Your wishlist is empty</h3><a href="marketplace.html" class="btn btn-sm mt-2" style="background:#7c3aed;color:#fff;">Browse Products</a></div>
+    </div>
+
+    <!-- BROWSE -->
+    <div id="tab-browse" class="hidden">
+      <div class="dash-header"><h1>Browse Products</h1></div>
+      <div class="filter-bar" style="margin-bottom:16px;">
+        <input type="text" id="browseQ" placeholder="Search..."/>
+        <select id="browseCat"><option value="">All</option><option>Mobiles</option><option>Electronics</option><option>Cars</option><option>Bikes</option><option>Furniture</option></select>
+        <button class="btn btn-sm" style="background:#7c3aed;color:#fff;" onclick="renderBrowse()">Search</button>
+      </div>
+      <div class="grid-4" id="browseGrid"></div>
+    </div>
+
+    <!-- PROPERTY WISHLIST -->
+    <div id="tab-propwish" class="hidden">
+      <div class="dash-header"><h1>Saved Properties</h1></div>
+      <div class="grid-3" id="propWishGrid"></div>
+      <div id="emptyPropWish" class="empty-state hidden"><div class="empty-icon">🏠</div><h3>No saved properties</h3><a href="properties.html" class="btn btn-sm mt-2" style="background:#b45309;color:#fff;">Browse Properties</a></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="tab-profile" class="hidden">
+      <div class="dash-header"><h1>My Profile</h1></div>
+      <div class="card" style="padding:28px;max-width:500px;">
+        <div class="form-group"><label>Full Name</label><input type="text" id="bName"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="bPhone"/></div>
+          <div class="form-group"><label>Location</label><select id="bLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
+        </div>
+        <button class="btn" style="background:#7c3aed;color:#fff;" onclick="toast('Profile saved!')">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="../js/data.js"></script>
+<script>
+function showTab(id,el){
+  document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(id==='wishlist') renderWishlist();
+  if(id==='browse') renderBrowse();
+  if(id==='propwish') renderPropWish();
+}
+function init(){
+  const user=Auth.current();
+  if(!user){window.location.href='login.html';return;}
+  document.getElementById('navUser').textContent=user.name;
+  document.getElementById('buyerName').textContent=user.name.split(' ')[0];
+  document.getElementById('bName').value=user.name;
+  document.getElementById('bPhone').value=user.phone||'';
+  const wl=(DB.get('wishlist')||[]).filter(w=>w.type==='product');
+  const pw=(DB.get('wishlist')||[]).filter(w=>w.type==='property');
+  document.getElementById('statWish').textContent=wl.length;
+  document.getElementById('statPropWish').textContent=pw.length;
+  renderOverviewWish(wl.slice(0,4));
+}
+function renderOverviewWish(list){
+  document.getElementById('overviewWish').innerHTML=list.length?list.map(p=>prodCard(p)).join(''):'<p style="color:#64748b;font-size:14px;">No saved items. <a href="marketplace.html" style="color:#7c3aed;">Browse marketplace</a></p>';
+}
+function prodCard(p){
+  return `<div class="card">
+    <img src="${p.img}" style="width:100%;height:150px;object-fit:cover;" onerror="this.src='https://placehold.co/300x150/f1f5f9/64748b?text=Product'"/>
+    <div style="padding:12px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px;">${p.name}</div>
+      <div style="color:#25D366;font-weight:700;margin-bottom:8px;">${formatPrice(p.price)}</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-green btn-sm" style="flex:1;" onclick="openWA('${p.contact||'919999999999'}','Hi, I am interested in ${encodeURIComponent(p.name)}.')">💬</button>
+        <button class="btn btn-sm" style="flex:1;background:#ef4444;color:#fff;" onclick="removeWish('${p.id}')">🗑</button>
+      </div>
+    </div>
+  </div>`;
+}
+function renderWishlist(){
+  const list=(DB.get('wishlist')||[]).filter(w=>w.type==='product');
+  if(!list.length){document.getElementById('wishlistGrid').innerHTML='';document.getElementById('emptyWish').classList.remove('hidden');return;}
+  document.getElementById('emptyWish').classList.add('hidden');
+  document.getElementById('wishlistGrid').innerHTML=list.map(p=>prodCard(p)).join('');
+}
+function renderPropWish(){
+  const list=(DB.get('wishlist')||[]).filter(w=>w.type==='property');
+  if(!list.length){document.getElementById('propWishGrid').innerHTML='';document.getElementById('emptyPropWish').classList.remove('hidden');return;}
+  document.getElementById('emptyPropWish').classList.add('hidden');
+  document.getElementById('propWishGrid').innerHTML=list.map(p=>`
+    <div class="card">
+      <img src="${p.img}" style="width:100%;height:160px;object-fit:cover;" onerror="this.src='https://placehold.co/400x160/fef3c7/92400e?text=Property'"/>
+      <div style="padding:14px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${p.title}</div>
+        <div style="color:#25D366;font-weight:700;margin-bottom:6px;">${formatPrice(p.price)}</div>
+        <div style="font-size:12px;color:#64748b;">${p.type} · ${p.area} · ${p.location}</div>
+        <div style="display:flex;gap:6px;margin-top:10px;">
+          <button class="btn btn-green btn-sm" style="flex:1;" onclick="openWA('${p.contact||'919999999999'}','Interested in your property: ${encodeURIComponent(p.title)}')">💬 Contact</button>
+          <button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="removePropWish('${p.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function renderBrowse(){
+  const q=document.getElementById('browseQ').value.toLowerCase();
+  const cat=document.getElementById('browseCat').value;
+  let list=DB.get('products');
+  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q));
+  if(cat) list=list.filter(p=>p.category===cat);
+  const wl=(DB.get('wishlist')||[]).map(w=>w.id);
+  document.getElementById('browseGrid').innerHTML=list.map(p=>`
+    <div class="card">
+      <img src="${p.img}" style="width:100%;height:150px;object-fit:cover;" onerror="this.src='https://placehold.co/300x150/f1f5f9/64748b?text=Product'"/>
+      <div style="padding:12px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px;">${p.name}</div>
+        <div style="color:#25D366;font-weight:700;margin-bottom:8px;">${formatPrice(p.price)}</div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:8px;">📍 ${p.location} · ${p.condition}</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-green btn-sm" style="flex:1;" onclick="openWA('${p.contact||'919999999999'}','Interested in ${encodeURIComponent(p.name)} for ${formatPrice(p.price)}.')">💬</button>
+          <button class="btn btn-sm btn-outline" onclick="addWish(${JSON.stringify(p).replace(/"/g,'&quot;')})" title="Add to Wishlist">${wl.includes(p.id)?'❤️':'🤍'}</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function addWish(p){
+  const wl=DB.get('wishlist')||[];
+  if(!wl.find(w=>w.id===p.id)){wl.push({...p,type:'product'});DB.set('wishlist',wl);}
+  toast('Added to wishlist!');document.getElementById('statWish').textContent=wl.filter(w=>w.type==='product').length;
+  renderBrowse();
+}
+function removeWish(id){
+  const wl=(DB.get('wishlist')||[]).filter(w=>w.id!==id);
+  DB.set('wishlist',wl);toast('Removed from wishlist!');
+  document.getElementById('statWish').textContent=wl.filter(w=>w.type==='product').length;
+  renderWishlist();
+}
+function removePropWish(id){
+  const wl=(DB.get('wishlist')||[]).filter(w=>w.id!==id);
+  DB.set('wishlist',wl);toast('Removed!');
+  document.getElementById('statPropWish').textContent=wl.filter(w=>w.type==='property').length;
+  renderPropWish();
+}
+init();
+</script>
+</body></html>

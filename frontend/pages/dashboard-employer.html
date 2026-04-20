@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Employer Dashboard — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="navUser" style="font-size:14px;color:#64748b;"></span>
+      <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
+    </div>
+  </div>
+</nav>
+<div class="dashboard">
+  <div class="sidebar">
+    <div class="sidebar-logo">🏢 Employer Panel</div>
+    <div class="sidebar-menu">
+      <div class="sidebar-label">Dashboard</div>
+      <div class="sidebar-item active" onclick="showTab('overview',this)"><span class="icon">📊</span> Overview</div>
+      <div class="sidebar-item" onclick="showTab('postjob',this)"><span class="icon">➕</span> Post a Job</div>
+      <div class="sidebar-item" onclick="showTab('myjobs',this)"><span class="icon">💼</span> My Job Posts</div>
+      <div class="sidebar-item" onclick="showTab('applications',this)"><span class="icon">📋</span> Applications</div>
+      <div class="sidebar-label">Account</div>
+      <div class="sidebar-item" onclick="showTab('profile',this)"><span class="icon">👤</span> Company Profile</div>
+    </div>
+  </div>
+  <div class="dash-main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview">
+      <div class="dash-header">
+        <h1>Welcome, <span id="empName" class="text-green"></span> 🏢</h1>
+        <button class="btn btn-blue btn-sm" onclick="showTab('postjob',document.querySelector('[onclick*=postjob]'))">+ Post New Job</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">💼</div><div class="stat-info"><h3 id="statJobs">0</h3><p>Active Jobs</p></div></div>
+        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-info"><h3 id="statApps">0</h3><p>Applications</p></div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-info"><h3 id="statShort">0</h3><p>Shortlisted</p></div></div>
+        <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-info"><h3 id="statHired">0</h3><p>Hired</p></div></div>
+      </div>
+      <h3 style="margin-bottom:14px;">Recent Applications</h3>
+      <div id="recentApps"></div>
+    </div>
+
+    <!-- POST JOB -->
+    <div id="tab-postjob" class="hidden">
+      <div class="dash-header"><h1>Post a New Job</h1></div>
+      <div class="card" style="padding:28px;max-width:620px;">
+        <div class="form-group"><label>Job Title</label><input type="text" id="jTitle" placeholder="e.g. Telecaller - Customer Support"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Category</label>
+            <select id="jCat"><option>Telecaller</option><option>IT/Developer</option><option>Admin</option><option>Housekeeping</option><option>Nursing</option><option>Manager</option><option>Chef</option><option>Security</option></select>
+          </div>
+          <div class="form-group"><label>Job Type</label><select id="jType"><option>Full Time</option><option>Part Time</option><option>Contract</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Salary Range</label><input type="text" id="jSalary" placeholder="₹12,000–15,000/mo"/></div>
+          <div class="form-group"><label>Openings</label><input type="number" id="jOpenings" value="1" min="1"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Location</label><select id="jLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select></div>
+          <div class="form-group"><label>Shift</label><select id="jShift"><option>Day</option><option>Morning</option><option>Night</option><option>Rotational</option></select></div>
+        </div>
+        <div class="form-group"><label>Perks (comma separated)</label><input type="text" id="jPerks" placeholder="PF, ESI, Bonus, Accommodation"/></div>
+        <div class="form-group"><label>Required Skills</label><input type="text" id="jSkills" placeholder="Communication, MS Office, Telugu"/></div>
+        <div class="form-group"><label>Job Description</label><textarea id="jDesc" placeholder="Describe the role and responsibilities..."></textarea></div>
+        <button class="btn btn-blue" onclick="postJob()">Post Job →</button>
+      </div>
+    </div>
+
+    <!-- MY JOBS -->
+    <div id="tab-myjobs" class="hidden">
+      <div class="dash-header"><h1>My Job Posts</h1></div>
+      <div id="myJobsList" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+
+    <!-- APPLICATIONS -->
+    <div id="tab-applications" class="hidden">
+      <div class="dash-header"><h1>All Applications</h1></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Applicant</th><th>Job</th><th>Applied</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="appsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="tab-profile" class="hidden">
+      <div class="dash-header"><h1>Company Profile</h1></div>
+      <div class="card" style="padding:28px;max-width:560px;">
+        <div class="form-group"><label>Company Name</label><input type="text" id="cName"/></div>
+        <div class="form-group"><label>Industry</label><input type="text" id="cIndustry" placeholder="e.g. IT, Healthcare, Retail"/></div>
+        <div class="form-group"><label>Contact Person</label><input type="text" id="cContact"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="cPhone"/></div>
+          <div class="form-group"><label>Location</label><select id="cLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
+        </div>
+        <div class="form-group"><label>About Company</label><textarea id="cAbout" placeholder="Tell applicants about your company..."></textarea></div>
+        <button class="btn btn-blue" onclick="saveCompanyProfile()">Save Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script>
+const STATUS_COLORS={Applied:'chip-blue',Shortlisted:'chip-green',Rejected:'chip-red','Interview Scheduled':'chip-orange',Hired:'chip-green','Not Interested':'chip-gray'};
+function showTab(id,el){
+  document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(id==='myjobs') renderMyJobs();
+  if(id==='applications') renderApps();
+}
+function init(){
+  const user=Auth.current();
+  if(!user){window.location.href='login.html';return;}
+  document.getElementById('navUser').textContent=user.name;
+  document.getElementById('empName').textContent=user.company||user.name.split(' ')[0];
+  document.getElementById('cName').value=user.company||'';
+  document.getElementById('cContact').value=user.name;
+  document.getElementById('cPhone').value=user.phone||'';
+  const allJobs=DB.get('jobs');
+  const allApps=DB.get('job_applications');
+  document.getElementById('statJobs').textContent=allJobs.length;
+  document.getElementById('statApps').textContent=allApps.length;
+  document.getElementById('statShort').textContent=allApps.filter(a=>a.status==='Shortlisted').length;
+  document.getElementById('statHired').textContent=allApps.filter(a=>a.status==='Hired').length;
+  renderRecentApps();
+}
+function renderRecentApps(){
+  const apps=DB.get('job_applications').slice(0,4);
+  document.getElementById('recentApps').innerHTML=apps.length?`
+    <div class="table-wrap"><table>
+      <thead><tr><th>Applicant</th><th>Job</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${apps.map(a=>`<tr>
+        <td><strong>${a.userName}</strong></td>
+        <td>${a.jobTitle}</td>
+        <td><span class="chip ${STATUS_COLORS[a.status]||'chip-gray'}">${a.status}</span></td>
+        <td><select onchange="updateStatus('${a.id}',this.value)" style="padding:5px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-family:Poppins,sans-serif;">
+          ${['Applied','Shortlisted','Interview Scheduled','Hired','Rejected','Not Interested'].map(s=>`<option ${s===a.status?'selected':''}>${s}</option>`).join('')}
+        </select></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`:
+    '<div class="empty-state"><div class="empty-icon">📋</div><h3>No applications yet</h3></div>';
+}
+function renderMyJobs(){
+  const jobs=DB.get('jobs');
+  document.getElementById('myJobsList').innerHTML=jobs.map(j=>`
+    <div class="card" style="padding:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div style="font-size:16px;font-weight:700;">${j.title}</div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px;">💰 ${j.salary} · 📍 ${j.location} · 👥 ${j.openings} opening${j.openings>1?'s':''}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="chip chip-blue">${j.type}</span>
+        <button class="btn btn-outline btn-sm" onclick="deleteJob('${j.id}')">🗑 Remove</button>
+      </div>
+    </div>`).join('');
+}
+function renderApps(){
+  const apps=DB.get('job_applications');
+  document.getElementById('appsTable').innerHTML=apps.length?apps.map(a=>`
+    <tr>
+      <td><strong>${a.userName}</strong></td>
+      <td>${a.jobTitle}</td>
+      <td style="font-size:12px;color:#64748b;">${timeAgo(a.ts)}</td>
+      <td><span class="chip ${STATUS_COLORS[a.status]||'chip-gray'}">${a.status}</span></td>
+      <td><select onchange="updateStatus('${a.id}',this.value)" style="padding:5px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-family:Poppins,sans-serif;">
+        ${['Applied','Shortlisted','Interview Scheduled','Hired','Rejected','Not Interested'].map(s=>`<option ${s===a.status?'selected':''}>${s}</option>`).join('')}
+      </select></td>
+    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:30px;color:#64748b;">No applications yet</td></tr>';
+}
+function updateStatus(id,status){
+  const apps=DB.get('job_applications');
+  const a=apps.find(a=>a.id===id);
+  if(a){a.status=status;DB.set('job_applications',apps);}
+  toast('Status updated!');
+  document.getElementById('statShort').textContent=apps.filter(a=>a.status==='Shortlisted').length;
+  document.getElementById('statHired').textContent=apps.filter(a=>a.status==='Hired').length;
+}
+function postJob(){
+  const title=document.getElementById('jTitle').value.trim();
+  if(!title){toast('Please enter a job title','error');return;}
+  const user=Auth.current();
+  const jobs=DB.get('jobs');
+  jobs.unshift({
+    id:'j'+Date.now(),title,company:user.company||user.name,
+    salary:document.getElementById('jSalary').value,
+    location:document.getElementById('jLoc').value,
+    type:document.getElementById('jType').value,
+    shift:document.getElementById('jShift').value,
+    category:document.getElementById('jCat').value,
+    posted:'Just now',
+    openings:parseInt(document.getElementById('jOpenings').value)||1,
+    perks:document.getElementById('jPerks').value.split(',').map(s=>s.trim()).filter(Boolean),
+    skills:document.getElementById('jSkills').value.split(',').map(s=>s.trim()).filter(Boolean)
+  });
+  DB.set('jobs',jobs);
+  toast('Job posted successfully!');
+  document.getElementById('jTitle').value='';
+  document.getElementById('statJobs').textContent=jobs.length;
+}
+function deleteJob(id){
+  const jobs=DB.get('jobs').filter(j=>j.id!==id);
+  DB.set('jobs',jobs);toast('Job removed!');renderMyJobs();
+  document.getElementById('statJobs').textContent=jobs.length;
+}
+function saveCompanyProfile(){toast('Profile saved!');}
+init();
+</script>
+</body></html>

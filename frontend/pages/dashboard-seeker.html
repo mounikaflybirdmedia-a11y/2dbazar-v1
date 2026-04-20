@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Job Seeker Dashboard — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="navUser" style="font-size:14px;color:#64748b;"></span>
+      <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
+    </div>
+  </div>
+</nav>
+<div class="dashboard">
+  <div class="sidebar">
+    <div class="sidebar-logo">💼 Job Seeker</div>
+    <div class="sidebar-menu">
+      <div class="sidebar-label">My Portal</div>
+      <div class="sidebar-item active" onclick="showTab('overview',this)"><span class="icon">📊</span> Overview</div>
+      <div class="sidebar-item" onclick="showTab('resume',this)"><span class="icon">📄</span> My Resume</div>
+      <div class="sidebar-item" onclick="showTab('applied',this)"><span class="icon">📋</span> Applied Jobs</div>
+      <div class="sidebar-item" onclick="showTab('browse',this)"><span class="icon">🔍</span> Browse Jobs</div>
+    </div>
+  </div>
+  <div class="dash-main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview">
+      <div class="dash-header">
+        <h1>Hello, <span id="seekerName" class="text-green"></span> 👋</h1>
+        <a href="jobs.html" class="btn btn-blue btn-sm">Browse All Jobs</a>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-info"><h3 id="statApplied">0</h3><p>Jobs Applied</p></div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-info"><h3 id="statPending">0</h3><p>Awaiting Response</p></div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-info"><h3 id="statShort">0</h3><p>Shortlisted</p></div></div>
+        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-info"><h3 id="statInterview">0</h3><p>Interviews</p></div></div>
+      </div>
+      <h3 style="margin-bottom:14px;">Application Status</h3>
+      <div id="overviewApps"></div>
+    </div>
+
+    <!-- RESUME -->
+    <div id="tab-resume" class="hidden">
+      <div class="dash-header"><h1>My Resume / Profile</h1></div>
+      <div class="card" style="padding:28px;max-width:600px;">
+        <div class="form-group"><label>Full Name</label><input type="text" id="rName"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="rPhone"/></div>
+          <div class="form-group"><label>Location</label><select id="rLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select></div>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" id="rEmail"/></div>
+        <div class="form-group"><label>Skills (comma separated)</label><input type="text" id="rSkills" placeholder="React, Node.js, Communication"/></div>
+        <div class="form-group"><label>Experience</label>
+          <select id="rExp"><option>Fresher</option><option>Less than 1 year</option><option>1-2 years</option><option>2-5 years</option><option>5+ years</option></select>
+        </div>
+        <div class="form-group"><label>Education</label><input type="text" id="rEdu" placeholder="e.g. B.Tech, MBA, 10th/12th"/></div>
+        <div class="form-group"><label>Preferred Job Category</label>
+          <select id="rPref"><option>Any</option><option>Telecaller</option><option>IT/Developer</option><option>Admin</option><option>Nursing</option><option>Chef</option><option>Manager</option><option>Security</option></select>
+        </div>
+        <div class="form-group"><label>About Me</label><textarea id="rAbout" placeholder="Briefly describe yourself..."></textarea></div>
+        <button class="btn btn-blue" onclick="saveResume()">Save Resume</button>
+      </div>
+    </div>
+
+    <!-- APPLIED JOBS -->
+    <div id="tab-applied" class="hidden">
+      <div class="dash-header"><h1>Applied Jobs</h1></div>
+      <div id="appliedJobsList" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+
+    <!-- BROWSE -->
+    <div id="tab-browse" class="hidden">
+      <div class="dash-header"><h1>Browse Jobs</h1></div>
+      <div id="browseJobsList" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script>
+const S_COLORS={Applied:'chip-blue',Shortlisted:'chip-green',Rejected:'chip-red','Interview Scheduled':'chip-orange',Hired:'chip-green','Not Interested':'chip-gray'};
+function showTab(id,el){
+  document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(id==='applied') renderApplied();
+  if(id==='browse') renderBrowse();
+}
+function init(){
+  const user=Auth.current();
+  if(!user){window.location.href='login.html';return;}
+  document.getElementById('navUser').textContent=user.name;
+  document.getElementById('seekerName').textContent=user.name.split(' ')[0];
+  document.getElementById('rName').value=user.name;
+  document.getElementById('rPhone').value=user.phone||'';
+  document.getElementById('rEmail').value=user.email||'';
+  if(Array.isArray(user.skills)) document.getElementById('rSkills').value=user.skills.join(', ');
+  const apps=DB.get('job_applications').filter(a=>a.userId===user.id);
+  document.getElementById('statApplied').textContent=apps.length;
+  document.getElementById('statPending').textContent=apps.filter(a=>a.status==='Applied').length;
+  document.getElementById('statShort').textContent=apps.filter(a=>a.status==='Shortlisted').length;
+  document.getElementById('statInterview').textContent=apps.filter(a=>a.status==='Interview Scheduled').length;
+  renderOverview(apps);
+}
+function renderOverview(apps){
+  document.getElementById('overviewApps').innerHTML=apps.length?`
+    <div class="table-wrap"><table>
+      <thead><tr><th>Job</th><th>Applied</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>${apps.slice(0,5).map(a=>`<tr>
+        <td><strong>${a.jobTitle}</strong></td>
+        <td style="font-size:12px;color:#64748b;">${timeAgo(a.ts)}</td>
+        <td><span class="chip ${S_COLORS[a.status]||'chip-gray'}">${a.status}</span></td>
+        <td><button class="btn btn-outline btn-sm" onclick="openWA('919999999999','Hi, I applied for ${encodeURIComponent(a.jobTitle)} on 2D Bazar. Can you share an update?')">Follow Up</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`:
+    '<div class="empty-state"><div class="empty-icon">📋</div><h3>No applications yet</h3><p>Browse jobs and apply!</p><a href="jobs.html" class="btn btn-blue mt-2">Browse Jobs</a></div>';
+}
+function renderApplied(){
+  const user=Auth.current();
+  const apps=DB.get('job_applications').filter(a=>a.userId===user.id);
+  document.getElementById('appliedJobsList').innerHTML=apps.length?apps.map(a=>`
+    <div class="card" style="padding:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div style="font-size:16px;font-weight:700;">${a.jobTitle}</div>
+        <div style="font-size:13px;color:#64748b;">Applied ${timeAgo(a.ts)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="chip ${S_COLORS[a.status]||'chip-gray'}">${a.status}</span>
+        <button class="btn btn-outline btn-sm" onclick="openWA('919999999999','Hi, regarding my application for ${encodeURIComponent(a.jobTitle)}...')">💬 Follow Up</button>
+      </div>
+    </div>`).join(''):'<div class="empty-state"><div class="empty-icon">📋</div><h3>No applications yet</h3></div>';
+}
+function renderBrowse(){
+  const jobs=DB.get('jobs');
+  const user=Auth.current();
+  const applied=DB.get('job_applications').filter(a=>a.userId===user.id).map(a=>a.jobId);
+  document.getElementById('browseJobsList').innerHTML=jobs.map(j=>`
+    <div class="card" style="padding:20px;">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+        <div><div style="font-size:16px;font-weight:700;">${j.title}</div><div style="font-size:13px;color:#64748b;">🏢 ${j.company} · 📍 ${j.location} · 💰 ${j.salary}</div></div>
+        <span class="chip chip-blue">${j.type}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">${j.perks.map(p=>`<span class="tag">${p}</span>`).join('')}</div>
+      <button class="btn btn-blue btn-sm" onclick="quickApply('${j.id}','${j.title}',this)" ${applied.includes(j.id)?'disabled style="opacity:0.5;cursor:not-allowed;"':''}>${applied.includes(j.id)?'✅ Applied':'Apply Now'}</button>
+    </div>`).join('');
+}
+function quickApply(id,title,btn){
+  const user=Auth.current();
+  const apps=DB.get('job_applications');
+  apps.push({id:'app'+Date.now(),jobId:id,jobTitle:title,userId:user.id,userName:user.name,status:'Applied',ts:Date.now()});
+  DB.set('job_applications',apps);
+  btn.textContent='✅ Applied';btn.disabled=true;btn.style.opacity='0.5';
+  toast('Applied successfully!');
+  document.getElementById('statApplied').textContent=apps.filter(a=>a.userId===user.id).length;
+}
+function saveResume(){
+  const user=Auth.current();
+  user.name=document.getElementById('rName').value;
+  user.phone=document.getElementById('rPhone').value;
+  user.skills=document.getElementById('rSkills').value.split(',').map(s=>s.trim());
+  const users=DB.get('users');
+  const idx=users.findIndex(u=>u.id===user.id);
+  if(idx>-1){users[idx]=user;DB.set('users',users);}
+  DB.set('current_user',user);
+  toast('Resume saved!');
+}
+init();
+</script>
+</body></html>
