@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Marketplace — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a><a href="services.html">Services</a>
+      <a href="jobs.html">Jobs</a><a href="marketplace.html" class="active">Marketplace</a><a href="properties.html">Properties</a>
+    </div>
+    <div class="nav-actions" id="navActions"></div>
+  </div>
+</nav>
+<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:40px 20px;text-align:center;">
+  <h1 style="font-size:32px;font-weight:800;margin-bottom:8px;">🛒 Marketplace</h1>
+  <p style="opacity:0.9;">Buy & sell mobiles, cars, bikes, electronics and more</p>
+</div>
+<div class="container" style="padding-top:30px;padding-bottom:60px;">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+    <button class="btn btn-sm" style="background:#7c3aed;color:#fff;" onclick="openSellModal()">+ Sell Something</button>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="prodSearch" placeholder="🔍 Search products..."/>
+    <select id="prodCat">
+      <option value="">All Categories</option>
+      <option>Mobiles</option><option>Electronics</option><option>Cars</option>
+      <option>Bikes</option><option>Furniture</option><option>Home Appliances</option>
+    </select>
+    <select id="prodLoc">
+      <option value="">All Locations</option>
+      <option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
+    </select>
+    <select id="prodCond"><option value="">Any Condition</option><option>New</option><option>Used</option></select>
+    <select id="prodPrice">
+      <option value="">Any Price</option>
+      <option value="0-10000">Under ₹10K</option>
+      <option value="10000-50000">₹10K–50K</option>
+      <option value="50000-200000">₹50K–2L</option>
+      <option value="200000-99999999">Above ₹2L</option>
+    </select>
+    <button class="btn btn-sm" style="background:#7c3aed;color:#fff;" onclick="applyProdFilters()">Search</button>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="tabProd('',this)">All</button>
+    <button class="tab-btn" onclick="tabProd('Mobiles',this)">📱 Mobiles</button>
+    <button class="tab-btn" onclick="tabProd('Electronics',this)">💻 Electronics</button>
+    <button class="tab-btn" onclick="tabProd('Cars',this)">🚗 Cars</button>
+    <button class="tab-btn" onclick="tabProd('Bikes',this)">🏍️ Bikes</button>
+    <button class="tab-btn" onclick="tabProd('Furniture',this)">🛋️ Furniture</button>
+    <button class="tab-btn" onclick="tabProd('Home Appliances',this)">🏠 Appliances</button>
+  </div>
+  <div id="prodCount" style="font-size:14px;color:#64748b;margin-bottom:16px;"></div>
+  <div class="grid-4" id="productsGrid"></div>
+  <div id="emptyProds" class="empty-state hidden"><div class="empty-icon">🛒</div><h3>No products found</h3><p>Try different filters</p></div>
+</div>
+
+<!-- PRODUCT DETAIL MODAL -->
+<div class="modal-overlay hidden" id="detailModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header"><h3 id="detailTitle"></h3><button class="modal-close" onclick="closeDetail()">✕</button></div>
+    <img id="detailImg" src="" style="width:100%;height:240px;object-fit:cover;border-radius:10px;margin-bottom:16px;"/>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div id="detailPrice" style="font-size:24px;font-weight:800;color:#25D366;"></div>
+      <div id="detailCond"></div>
+    </div>
+    <div id="detailMeta" style="display:flex;flex-wrap:wrap;gap:10px;font-size:13px;color:#64748b;margin-bottom:16px;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button id="detailWA" class="btn btn-green" style="flex:1;">💬 Chat on WhatsApp</button>
+      <button id="detailWish" class="btn btn-outline" style="flex:1;">🤍 Add to Wishlist</button>
+    </div>
+  </div>
+</div>
+
+<!-- SELL MODAL -->
+<div class="modal-overlay hidden" id="sellModal">
+  <div class="modal">
+    <div class="modal-header"><h3>📦 Post Your Listing</h3><button class="modal-close" onclick="closeSellModal()">✕</button></div>
+    <div class="form-group"><label>Product Name</label><input type="text" id="sName" placeholder="e.g. Samsung Galaxy S23"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Category</label>
+        <select id="sCat"><option>Mobiles</option><option>Electronics</option><option>Cars</option><option>Bikes</option><option>Furniture</option><option>Home Appliances</option></select>
+      </div>
+      <div class="form-group"><label>Price (₹)</label><input type="number" id="sPrice" placeholder="e.g. 15000"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Condition</label><select id="sCond"><option>Used</option><option>New</option></select></div>
+      <div class="form-group"><label>Location</label>
+        <select id="sLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="sDesc" placeholder="Describe your product..."></textarea></div>
+    <div class="form-group"><label>Image URL (optional)</label><input type="url" id="sImg" placeholder="https://..."/></div>
+    <button class="btn btn-full" style="background:#7c3aed;color:#fff;" onclick="submitListing()">Post Listing</button>
+  </div>
+</div>
+
+<a href="https://wa.me/919999999999" class="wa-float">💬</a>
+<script src="../js/data.js"></script>
+<script>
+let prodTab='', currentProduct=null;
+function renderNav() {
+  const user=Auth.current();
+  const el=document.getElementById('navActions');
+  el.innerHTML=user
+    ?`<button onclick="window.location.href='dashboard-${user.role}.html'" class="btn btn-outline btn-sm">⚡ Dashboard</button><button onclick="Auth.logout();location.reload();" class="btn btn-sm" style="background:#f1f5f9;">Logout</button>`
+    :`<a href="login.html" class="btn btn-outline btn-sm">Login</a><a href="signup.html" class="btn btn-sm" style="background:#7c3aed;color:#fff;">Sign Up</a>`;
+}
+function renderProducts(list) {
+  const grid=document.getElementById('productsGrid');
+  const empty=document.getElementById('emptyProds');
+  document.getElementById('prodCount').textContent=`${list.length} listing${list.length!==1?'s':''}`;
+  if(!list.length){grid.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  grid.innerHTML=list.map(p=>`
+    <div class="card" style="cursor:pointer;" onclick='openDetail(${JSON.stringify(p).replace(/'/g,"&#39;")})'>
+      <div style="position:relative;">
+        <img class="card-img" src="${p.img}" alt="${p.name}" style="height:170px;" onerror="this.src='https://placehold.co/300x170/f1f5f9/64748b?text=${encodeURIComponent(p.name.substring(0,10))}'"/>
+        <span class="chip ${p.condition==='New'?'chip-green':'chip-orange'}" style="position:absolute;top:8px;left:8px;">${p.condition}</span>
+      </div>
+      <div class="card-body">
+        <div style="font-size:11px;color:#64748b;font-weight:600;margin-bottom:4px;">${p.category}</div>
+        <div class="card-title" style="font-size:14px;line-height:1.3;">${p.name}</div>
+        <div class="card-price" style="font-size:17px;">${formatPrice(p.price)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#64748b;">
+          <span>📍 ${p.location}</span><span>👤 ${p.seller}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function getProducts(){
+  let list=DB.get('products');
+  const q=document.getElementById('prodSearch').value.toLowerCase();
+  const cat=document.getElementById('prodCat').value;
+  const loc=document.getElementById('prodLoc').value;
+  const cond=document.getElementById('prodCond').value;
+  const price=document.getElementById('prodPrice').value;
+  if(prodTab) list=list.filter(p=>p.category===prodTab);
+  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||p.category.toLowerCase().includes(q));
+  if(cat) list=list.filter(p=>p.category===cat);
+  if(loc) list=list.filter(p=>p.location===loc);
+  if(cond) list=list.filter(p=>p.condition===cond);
+  if(price){const[mn,mx]=price.split('-').map(Number);list=list.filter(p=>p.price>=mn&&p.price<=mx);}
+  return list;
+}
+function applyProdFilters(){renderProducts(getProducts());}
+function tabProd(cat,el){
+  prodTab=cat;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderProducts(getProducts());
+}
+function openDetail(p){
+  currentProduct=p;
+  document.getElementById('detailTitle').textContent=p.name;
+  document.getElementById('detailImg').src=p.img;
+  document.getElementById('detailImg').onerror=function(){this.src='https://placehold.co/580x240/f1f5f9/64748b?text=No+Image';};
+  document.getElementById('detailPrice').textContent=formatPrice(p.price);
+  document.getElementById('detailCond').innerHTML=`<span class="chip ${p.condition==='New'?'chip-green':'chip-orange'}">${p.condition}</span>`;
+  document.getElementById('detailMeta').innerHTML=`<span>📍 ${p.location}</span><span>📦 ${p.category}</span><span>🕒 ${p.age||'N/A'} old</span><span>👤 ${p.seller}</span>`;
+  document.getElementById('detailWA').onclick=()=>openWA(p.contact||'919999999999',`Hi, I'm interested in your ${p.name} listed on 2D Bazar for ${formatPrice(p.price)}.`);
+  document.getElementById('detailWish').onclick=()=>addWishlist(p);
+  document.getElementById('detailModal').classList.remove('hidden');
+}
+function closeDetail(){document.getElementById('detailModal').classList.add('hidden');}
+function addWishlist(p){
+  const wl=DB.get('wishlist')||[];
+  if(!wl.find(w=>w.id===p.id)){wl.push({...p,type:'product'});DB.set('wishlist',wl);}
+  toast('Added to wishlist!');
+}
+function openSellModal(){
+  if(!Auth.current()){window.location.href='login.html';return;}
+  document.getElementById('sellModal').classList.remove('hidden');
+}
+function closeSellModal(){document.getElementById('sellModal').classList.add('hidden');}
+function submitListing(){
+  const name=document.getElementById('sName').value.trim();
+  if(!name){toast('Please enter a product name','error');return;}
+  const user=Auth.current();
+  const prods=DB.get('products');
+  const p={
+    id:'p'+Date.now(),name,category:document.getElementById('sCat').value,
+    price:parseInt(document.getElementById('sPrice').value)||0,
+    condition:document.getElementById('sCond').value,
+    location:document.getElementById('sLoc').value,
+    img:document.getElementById('sImg').value||'https://placehold.co/300x170/f1f5f9/64748b?text='+encodeURIComponent(name),
+    seller:user.name,contact:user.phone,age:'New'
+  };
+  prods.unshift(p);DB.set('products',prods);
+  toast('Listing posted!');closeSellModal();renderProducts(getProducts());
+}
+const urlCat=new URLSearchParams(location.search).get('cat');
+if(urlCat){prodTab=urlCat;}
+renderNav();renderProducts(getProducts());
+</script>
+</body></html>

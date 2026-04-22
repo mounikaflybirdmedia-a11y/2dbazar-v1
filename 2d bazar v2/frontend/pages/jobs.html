@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Jobs — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a><a href="services.html">Services</a>
+      <a href="jobs.html" class="active">Jobs</a><a href="marketplace.html">Marketplace</a><a href="properties.html">Properties</a>
+    </div>
+    <div class="nav-actions" id="navActions"></div>
+  </div>
+</nav>
+<div style="background:linear-gradient(135deg,#1a73e8,#0f4c80);color:#fff;padding:40px 20px;text-align:center;">
+  <h1 style="font-size:32px;font-weight:800;margin-bottom:8px;">💼 Jobs Portal</h1>
+  <p style="opacity:0.9;">Find your dream job or hire the best talent in Vijayanagaram district</p>
+</div>
+<div class="container" style="padding-top:30px;padding-bottom:60px;">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+    <button class="btn btn-blue" onclick="checkAndPost()">+ Post a Job</button>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="jobSearch" placeholder="🔍 Job title, company, skill..."/>
+    <select id="jobCat">
+      <option value="">All Categories</option>
+      <option>Telecaller</option><option>IT/Developer</option><option>Admin</option>
+      <option>Housekeeping</option><option>Nursing</option><option>Manager</option><option>Chef</option><option>Security</option>
+    </select>
+    <select id="jobLoc">
+      <option value="">All Locations</option>
+      <option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
+    </select>
+    <select id="jobType"><option value="">Any Type</option><option>Full Time</option><option>Part Time</option><option>Contract</option></select>
+    <button class="btn btn-blue btn-sm" onclick="applyJobFilters()">Search</button>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="tabJob('',this)">All Jobs</button>
+    <button class="tab-btn" onclick="tabJob('Telecaller',this)">📞 Telecaller</button>
+    <button class="tab-btn" onclick="tabJob('IT/Developer',this)">💻 IT/Dev</button>
+    <button class="tab-btn" onclick="tabJob('Nursing',this)">🏥 Nursing</button>
+    <button class="tab-btn" onclick="tabJob('Chef',this)">👨‍🍳 Chef</button>
+    <button class="tab-btn" onclick="tabJob('Manager',this)">👔 Manager</button>
+    <button class="tab-btn" onclick="tabJob('Security',this)">🛡️ Security</button>
+  </div>
+  <div id="jobCount" style="font-size:14px;color:#64748b;margin-bottom:16px;"></div>
+  <div id="jobsGrid" style="display:flex;flex-direction:column;gap:16px;"></div>
+  <div id="emptyJobs" class="empty-state hidden"><div class="empty-icon">💼</div><h3>No jobs found</h3><p>Try different search terms</p></div>
+</div>
+
+<!-- POST JOB MODAL -->
+<div class="modal-overlay hidden" id="postJobModal">
+  <div class="modal">
+    <div class="modal-header"><h3>📋 Post a Job</h3><button class="modal-close" onclick="closeJobModal()">✕</button></div>
+    <div class="form-group"><label>Job Title</label><input type="text" id="jTitle" placeholder="e.g. Telecaller - Customer Support"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Category</label>
+        <select id="jCat"><option>Telecaller</option><option>IT/Developer</option><option>Admin</option><option>Housekeeping</option><option>Nursing</option><option>Manager</option><option>Chef</option><option>Security</option></select>
+      </div>
+      <div class="form-group"><label>Location</label>
+        <select id="jLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Salary Range</label><input type="text" id="jSalary" placeholder="e.g. ₹12,000–15,000/mo"/></div>
+      <div class="form-group"><label>Openings</label><input type="number" id="jOpenings" value="1"/></div>
+    </div>
+    <div class="form-group"><label>Shift</label>
+      <select id="jShift"><option>Day</option><option>Morning</option><option>Night</option><option>Rotational</option></select>
+    </div>
+    <div class="form-group"><label>Perks (comma separated)</label><input type="text" id="jPerks" placeholder="PF, ESI, Bonus"/></div>
+    <div class="form-group"><label>Required Skills</label><input type="text" id="jSkills" placeholder="Communication, MS Office"/></div>
+    <button class="btn btn-blue btn-full" onclick="submitJob()">Post Job</button>
+  </div>
+</div>
+
+<a href="https://wa.me/919999999999" class="wa-float">💬</a>
+<script src="../js/data.js"></script>
+<script>
+let jobTab = '';
+function renderNav() {
+  const user = Auth.current();
+  const el = document.getElementById('navActions');
+  el.innerHTML = user
+    ? `<button onclick="window.location.href='dashboard-${user.role==='employer'?'employer':user.role==='job_seeker'?'seeker':user.role}.html'" class="btn btn-outline btn-sm">⚡ Dashboard</button><button onclick="Auth.logout();location.reload();" class="btn btn-sm" style="background:#f1f5f9;">Logout</button>`
+    : `<a href="login.html" class="btn btn-outline btn-sm">Login</a><a href="signup.html" class="btn btn-blue btn-sm">Sign Up</a>`;
+}
+function renderJobs(list) {
+  const el = document.getElementById('jobsGrid');
+  const empty = document.getElementById('emptyJobs');
+  document.getElementById('jobCount').textContent = `${list.length} job${list.length!==1?'s':''} found`;
+  if (!list.length) { el.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  el.innerHTML = list.map(j => `
+    <div class="card" style="padding:24px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div>
+          <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">${j.title}</h3>
+          <div style="font-size:14px;color:#64748b;margin-bottom:8px;">🏢 ${j.company}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:13px;color:#475569;">
+            <span>💰 ${j.salary}</span><span>📍 ${j.location}</span>
+            <span>🕐 ${j.shift} Shift</span><span>📅 ${j.posted}</span>
+            <span>👥 ${j.openings} opening${j.openings>1?'s':''}</span>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <span class="chip chip-blue">${j.type}</span>
+          <div style="font-size:12px;color:#64748b;margin-top:6px;">${j.category}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;">
+        ${j.perks.map(p=>`<span class="tag">${p}</span>`).join('')}
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+        ${j.skills.map(s=>`<span class="chip chip-gray">${s}</span>`).join('')}
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-blue btn-sm" onclick="applyJob('${j.id}','${j.title}')">Apply Now</button>
+        <button class="btn btn-outline btn-sm" onclick="openWA('919999999999','Hi, I am interested in the ${encodeURIComponent(j.title)} position at ${encodeURIComponent(j.company)}.')">💬 WhatsApp</button>
+      </div>
+    </div>`).join('');
+}
+function getJobList() {
+  let list = DB.get('jobs');
+  const q = document.getElementById('jobSearch').value.toLowerCase();
+  const cat = document.getElementById('jobCat').value;
+  const loc = document.getElementById('jobLoc').value;
+  const type = document.getElementById('jobType').value;
+  if (jobTab) list = list.filter(j=>j.category===jobTab);
+  if (q) list = list.filter(j=>j.title.toLowerCase().includes(q)||j.company.toLowerCase().includes(q));
+  if (cat) list = list.filter(j=>j.category===cat);
+  if (loc) list = list.filter(j=>j.location===loc);
+  if (type) list = list.filter(j=>j.type===type);
+  return list;
+}
+function applyJobFilters() { renderJobs(getJobList()); }
+function tabJob(cat,el) {
+  jobTab=cat;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderJobs(getJobList());
+}
+function applyJob(id,title) {
+  const user = Auth.current();
+  if (!user) { window.location.href='login.html'; return; }
+  const apps = DB.get('job_applications');
+  if (apps.find(a=>a.jobId===id&&a.userId===user.id)) { toast('Already applied!','error'); return; }
+  apps.push({id:'app'+Date.now(),jobId:id,jobTitle:title,userId:user.id,userName:user.name,status:'Applied',ts:Date.now()});
+  DB.set('job_applications',apps);
+  toast('Applied successfully!');
+}
+function checkAndPost() {
+  const user = Auth.current();
+  if (!user) { window.location.href='login.html'; return; }
+  if (user.role!=='employer'&&user.role!=='admin') { toast('Only employers can post jobs','error'); return; }
+  document.getElementById('postJobModal').classList.remove('hidden');
+}
+function closeJobModal() { document.getElementById('postJobModal').classList.add('hidden'); }
+function submitJob() {
+  const title = document.getElementById('jTitle').value.trim();
+  if (!title) { toast('Please enter a job title','error'); return; }
+  const user = Auth.current();
+  const jobs = DB.get('jobs');
+  jobs.unshift({
+    id:'j'+Date.now(), title, company:user.company||user.name,
+    salary:document.getElementById('jSalary').value,
+    location:document.getElementById('jLoc').value,
+    type:'Full Time', shift:document.getElementById('jShift').value,
+    category:document.getElementById('jCat').value,
+    posted:'Just now', openings:parseInt(document.getElementById('jOpenings').value)||1,
+    perks:document.getElementById('jPerks').value.split(',').map(s=>s.trim()).filter(Boolean),
+    skills:document.getElementById('jSkills').value.split(',').map(s=>s.trim()).filter(Boolean)
+  });
+  DB.set('jobs',jobs);
+  toast('Job posted successfully!');
+  closeJobModal();
+  renderJobs(getJobList());
+}
+renderNav();
+renderJobs(getJobList());
+</script>
+</body></html>

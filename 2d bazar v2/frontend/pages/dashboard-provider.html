@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Provider Dashboard — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="navUser" style="font-size:14px;color:#64748b;"></span>
+      <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
+    </div>
+  </div>
+</nav>
+<div class="dashboard">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">🔧 Provider Panel</div>
+    <div class="sidebar-menu">
+      <div class="sidebar-label">Main</div>
+      <div class="sidebar-item active" onclick="showTab('overview',this)"><span class="icon">📊</span> Overview</div>
+      <div class="sidebar-item" onclick="showTab('profile',this)"><span class="icon">👤</span> My Profile</div>
+      <div class="sidebar-item" onclick="showTab('requests',this)"><span class="icon">📋</span> Service Requests</div>
+      <div class="sidebar-item" onclick="showTab('applied',this)"><span class="icon">📝</span> My Applications</div>
+      <div class="sidebar-label">Business</div>
+      <div class="sidebar-item" onclick="showTab('availability',this)"><span class="icon">📅</span> Availability</div>
+      <div class="sidebar-item" onclick="showTab('earnings',this)"><span class="icon">💰</span> Earnings</div>
+      <div class="sidebar-item" onclick="showTab('reviews',this)"><span class="icon">⭐</span> Reviews</div>
+    </div>
+  </div>
+  <!-- MAIN -->
+  <div class="dash-main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview">
+      <div class="dash-header">
+        <h1>Welcome back, <span id="providerName" class="text-green"></span>! 👋</h1>
+        <button class="btn btn-green btn-sm" onclick="showTab('requests',document.querySelector('[onclick*=requests]'))">View Requests</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-info"><h3 id="statReqs">0</h3><p>Open Requests</p></div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-info"><h3 id="statAccepted">0</h3><p>Accepted Jobs</p></div></div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-info"><h3>₹12,400</h3><p>This Month</p></div></div>
+        <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-info"><h3>4.8</h3><p>Avg Rating</p></div></div>
+      </div>
+      <h3 style="margin-bottom:14px;">Recent Service Requests</h3>
+      <div id="recentRequests"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="tab-profile" class="hidden">
+      <div class="dash-header"><h1>My Profile</h1></div>
+      <div class="card" style="padding:28px;max-width:580px;">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;" id="profAvatar"></div>
+          <div><div id="profName" style="font-size:18px;font-weight:700;"></div><div id="profRole" style="font-size:13px;color:#64748b;"></div></div>
+        </div>
+        <div class="form-group"><label>Full Name</label><input type="text" id="pName"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="pPhone"/></div>
+          <div class="form-group"><label>Location</label><select id="pLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Service Category</label>
+            <select id="pCat"><option>Plumbing</option><option>Electrical</option><option>Carpentry</option><option>Cleaning</option><option>Painting</option><option>AC Repair</option><option>Appliance Repair</option></select>
+          </div>
+          <div class="form-group"><label>Hourly Rate (₹)</label><input type="number" id="pRate" placeholder="e.g. 300"/></div>
+        </div>
+        <div class="form-group"><label>Experience (Years)</label><input type="number" id="pExp" placeholder="e.g. 5"/></div>
+        <div class="form-group"><label>Skills / Specialization</label><input type="text" id="pSkills" placeholder="e.g. Pipe repair, Tap fitting, Drainage"/></div>
+        <button class="btn btn-green" onclick="saveProfile()">Save Profile</button>
+      </div>
+    </div>
+
+    <!-- REQUESTS -->
+    <div id="tab-requests" class="hidden">
+      <div class="dash-header"><h1>Service Requests</h1><span class="tag" id="reqBadge"></span></div>
+      <div id="requestsList"></div>
+    </div>
+
+    <!-- APPLIED -->
+    <div id="tab-applied" class="hidden">
+      <div class="dash-header"><h1>My Applications</h1></div>
+      <div id="appliedList"></div>
+    </div>
+
+    <!-- AVAILABILITY -->
+    <div id="tab-availability" class="hidden">
+      <div class="dash-header"><h1>Set Availability</h1></div>
+      <div class="card" style="padding:28px;max-width:500px;">
+        <div class="form-group"><label>Available Days</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;" id="dayPicker">
+            ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<button class="tab-btn" onclick="toggleDay(this,'${d}')">${d}</button>`).join('')}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>From Time</label><input type="time" id="timeFrom" value="08:00"/></div>
+          <div class="form-group"><label>To Time</label><input type="time" id="timeTo" value="18:00"/></div>
+        </div>
+        <button class="btn btn-green" onclick="saveAvailability()">Save Availability</button>
+      </div>
+    </div>
+
+    <!-- EARNINGS -->
+    <div id="tab-earnings" class="hidden">
+      <div class="dash-header"><h1>Earnings</h1></div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-info"><h3>₹12,400</h3><p>This Month</p></div></div>
+        <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-info"><h3>₹67,800</h3><p>Total Earned</p></div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-info"><h3>34</h3><p>Jobs Completed</p></div></div>
+      </div>
+      <div class="card" style="padding:24px;">
+        <h3 style="margin-bottom:16px;">Earnings History</h3>
+        <table><thead><tr><th>Date</th><th>Service</th><th>Client</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>20 Apr 2025</td><td>Pipe Repair</td><td>Suresh K</td><td style="color:#25D366;font-weight:600;">₹1,200</td><td><span class="chip chip-green">Paid</span></td></tr>
+          <tr><td>18 Apr 2025</td><td>Tap Fitting</td><td>Priya M</td><td style="color:#25D366;font-weight:600;">₹600</td><td><span class="chip chip-green">Paid</span></td></tr>
+          <tr><td>15 Apr 2025</td><td>Drainage Fix</td><td>Ravi B</td><td style="color:#25D366;font-weight:600;">₹900</td><td><span class="chip chip-green">Paid</span></td></tr>
+          <tr><td>12 Apr 2025</td><td>New Tap Install</td><td>Anitha R</td><td style="color:#25D366;font-weight:600;">₹450</td><td><span class="chip chip-orange">Pending</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div id="tab-reviews" class="hidden">
+      <div class="dash-header"><h1>My Reviews</h1><span style="font-size:20px;font-weight:700;color:#fbbf24;">★ 4.8</span></div>
+      <div class="grid-3" id="reviewsList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script>
+const REVIEWS=[
+  {name:'Suresh Varma',rating:5,text:'Excellent work! Fixed the pipe leak within 30 minutes.',date:'18 Apr 2025'},
+  {name:'Priya Lakshmi',rating:5,text:'Very professional and clean work. Highly recommended!',date:'15 Apr 2025'},
+  {name:'Kiran Reddy',rating:4,text:'Good service, came on time and did the job well.',date:'10 Apr 2025'},
+  {name:'Anitha Devi',rating:5,text:'Best plumber in Vijayanagaram. Fixed what others couldn\'t!',date:'5 Apr 2025'},
+];
+function showTab(id,el){
+  document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(id==='requests') renderRequests();
+  if(id==='reviews') renderReviews();
+}
+function init(){
+  const user=Auth.current();
+  if(!user){window.location.href='login.html';return;}
+  document.getElementById('navUser').textContent=user.name;
+  document.getElementById('providerName').textContent=user.name.split(' ')[0];
+  document.getElementById('profAvatar').textContent=user.avatar||user.name[0];
+  document.getElementById('profName').textContent=user.name;
+  document.getElementById('profRole').textContent=user.category||'Service Provider';
+  document.getElementById('pName').value=user.name;
+  document.getElementById('pPhone').value=user.phone||'';
+  document.getElementById('pRate').value=user.rate||'';
+  document.getElementById('pExp').value=user.experience||'';
+  const reqs=DB.get('service_requests');
+  document.getElementById('statReqs').textContent=reqs.length;
+  document.getElementById('statAccepted').textContent=reqs.filter(r=>r.status==='Accepted').length;
+  renderRecentRequests();
+}
+function renderRecentRequests(){
+  const reqs=DB.get('service_requests').slice(0,3);
+  document.getElementById('recentRequests').innerHTML=reqs.length?reqs.map(r=>`
+    <div class="card" style="padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div><div style="font-weight:600;">${r.service} Request</div><div style="font-size:13px;color:#64748b;">${r.desc.substring(0,60)}...</div><div style="font-size:12px;color:#64748b;margin-top:4px;">📍 ${r.location} · Budget: ₹${r.budget}</div></div>
+      <div style="display:flex;gap:8px;"><button class="btn btn-green btn-sm" onclick="acceptReq('${r.id}')">Accept</button><button class="btn btn-outline btn-sm" onclick="openWA('919999999999','I can help with your ${encodeURIComponent(r.service)} request.')">WhatsApp</button></div>
+    </div>`).join(''):'<div class="empty-state"><div class="empty-icon">📋</div><h3>No requests yet</h3><p>Requests from customers will appear here</p></div>';
+}
+function renderRequests(){
+  const reqs=DB.get('service_requests');
+  document.getElementById('reqBadge').textContent=reqs.length+' total';
+  document.getElementById('requestsList').innerHTML=reqs.length?reqs.map(r=>`
+    <div class="card" style="padding:20px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+        <div><div style="font-size:16px;font-weight:700;">${r.service} Request</div><div style="font-size:13px;color:#64748b;margin-top:4px;">${r.desc}</div></div>
+        <span class="chip ${r.status==='Open'?'chip-blue':r.status==='Accepted'?'chip-green':'chip-gray'}">${r.status}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:#64748b;margin-bottom:12px;">
+        <span>📍 ${r.location}</span><span>💰 Budget: ₹${r.budget}</span><span>📅 ${r.date||'Flexible'}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-green btn-sm" onclick="acceptReq('${r.id}')">✅ Accept</button>
+        <button class="btn btn-outline btn-sm" onclick="openWA('919999999999','I can help with your ${encodeURIComponent(r.service)} request on 2D Bazar.')">💬 Chat</button>
+      </div>
+    </div>`).join(''):'<div class="empty-state"><div class="empty-icon">📋</div><h3>No requests yet</h3></div>';
+}
+function acceptReq(id){
+  const reqs=DB.get('service_requests');
+  const r=reqs.find(r=>r.id===id);
+  if(r){r.status='Accepted';DB.set('service_requests',reqs);}
+  toast('Request accepted!');renderRequests();renderRecentRequests();
+  document.getElementById('statAccepted').textContent=reqs.filter(r=>r.status==='Accepted').length;
+}
+function saveProfile(){
+  const user=Auth.current();
+  if(!user) return;
+  user.name=document.getElementById('pName').value;
+  user.phone=document.getElementById('pPhone').value;
+  user.category=document.getElementById('pCat').value;
+  user.rate=document.getElementById('pRate').value;
+  user.experience=document.getElementById('pExp').value;
+  const users=DB.get('users');
+  const idx=users.findIndex(u=>u.id===user.id);
+  if(idx>-1){users[idx]=user;DB.set('users',users);}
+  DB.set('current_user',user);
+  toast('Profile saved!');
+}
+function toggleDay(el){el.classList.toggle('active');}
+function saveAvailability(){toast('Availability updated!');}
+function renderReviews(){
+  document.getElementById('reviewsList').innerHTML=REVIEWS.map(r=>`
+    <div class="testimonial-card">
+      <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      <p>"${r.text}"</p>
+      <div class="reviewer"><div class="reviewer-avatar">${r.name[0]}</div><div><div class="reviewer-name">${r.name}</div><div class="reviewer-role">${r.date}</div></div></div>
+    </div>`).join('');
+}
+init();
+</script>
+</body></html>

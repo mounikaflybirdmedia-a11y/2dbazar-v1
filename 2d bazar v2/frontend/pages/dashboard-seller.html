@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Seller Dashboard — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="navUser" style="font-size:14px;color:#64748b;"></span>
+      <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
+    </div>
+  </div>
+</nav>
+<div class="dashboard">
+  <div class="sidebar">
+    <div class="sidebar-logo">🛒 Seller Panel</div>
+    <div class="sidebar-menu">
+      <div class="sidebar-label">Products</div>
+      <div class="sidebar-item active" onclick="showTab('overview',this)"><span class="icon">📊</span> Overview</div>
+      <div class="sidebar-item" onclick="showTab('post',this)"><span class="icon">➕</span> Post Listing</div>
+      <div class="sidebar-item" onclick="showTab('listings',this)"><span class="icon">📦</span> My Listings</div>
+      <div class="sidebar-label">Properties</div>
+      <div class="sidebar-item" onclick="showTab('proppost',this)"><span class="icon">🏠</span> List Property</div>
+      <div class="sidebar-item" onclick="showTab('myprop',this)"><span class="icon">🏡</span> My Properties</div>
+      <div class="sidebar-label">Account</div>
+      <div class="sidebar-item" onclick="showTab('profile',this)"><span class="icon">👤</span> Profile</div>
+    </div>
+  </div>
+  <div class="dash-main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview">
+      <div class="dash-header">
+        <h1>Seller Dashboard <span class="text-green">👋</span></h1>
+        <button class="btn btn-sm" style="background:#7c3aed;color:#fff;" onclick="showTab('post',document.querySelector('[onclick*=post]'))">+ New Listing</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-info"><h3 id="statProds">0</h3><p>Active Listings</p></div></div>
+        <div class="stat-card"><div class="stat-icon">🏠</div><div class="stat-info"><h3 id="statProps">0</h3><p>Properties Listed</p></div></div>
+        <div class="stat-card"><div class="stat-icon">👁️</div><div class="stat-info"><h3>124</h3><p>Total Views</p></div></div>
+        <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-info"><h3>18</h3><p>Inquiries</p></div></div>
+      </div>
+      <h3 style="margin-bottom:14px;">My Active Listings</h3>
+      <div class="grid-4" id="overviewListings"></div>
+    </div>
+
+    <!-- POST PRODUCT -->
+    <div id="tab-post" class="hidden">
+      <div class="dash-header"><h1>Post New Listing</h1></div>
+      <div class="card" style="padding:28px;max-width:580px;">
+        <div class="form-group"><label>Product Name</label><input type="text" id="pName" placeholder="e.g. Samsung Galaxy S23 - 256GB"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Category</label>
+            <select id="pCat"><option>Mobiles</option><option>Electronics</option><option>Cars</option><option>Bikes</option><option>Furniture</option><option>Home Appliances</option></select>
+          </div>
+          <div class="form-group"><label>Price (₹)</label><input type="number" id="pPrice" placeholder="e.g. 15000"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Condition</label><select id="pCond"><option>Used</option><option>New</option></select></div>
+          <div class="form-group"><label>Age / Usage</label><input type="text" id="pAge" placeholder="e.g. 6 months"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Location</label>
+            <select id="pLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+          </div>
+          <div class="form-group"><label>Warranty</label><input type="text" id="pWarranty" placeholder="e.g. 6 months left / None"/></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="pDesc" placeholder="Describe your product..."></textarea></div>
+        <div class="form-group"><label>Image URL</label><input type="url" id="pImg" placeholder="https://..."/></div>
+        <button class="btn btn-full" style="background:#7c3aed;color:#fff;" onclick="postListing()">Post Listing →</button>
+      </div>
+    </div>
+
+    <!-- MY LISTINGS -->
+    <div id="tab-listings" class="hidden">
+      <div class="dash-header"><h1>My Listings</h1></div>
+      <div class="grid-4" id="myListings"></div>
+      <div id="emptyListings" class="empty-state hidden"><div class="empty-icon">📦</div><h3>No listings yet</h3><button class="btn btn-sm mt-2" style="background:#7c3aed;color:#fff;" onclick="showTab('post',null)">Post First Listing</button></div>
+    </div>
+
+    <!-- LIST PROPERTY -->
+    <div id="tab-proppost" class="hidden">
+      <div class="dash-header"><h1>List a Property</h1></div>
+      <div class="card" style="padding:28px;max-width:580px;">
+        <div class="form-group"><label>Property Title</label><input type="text" id="ptTitle" placeholder="e.g. 2BHK House for Sale"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Type</label><select id="ptType"><option>Plot</option><option>House</option><option>Apartment</option></select></div>
+          <div class="form-group"><label>Price (₹)</label><input type="number" id="ptPrice" placeholder="e.g. 3500000"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Area</label><input type="text" id="ptArea" placeholder="e.g. 900 sqft"/></div>
+          <div class="form-group"><label>Location</label>
+            <select id="ptLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Facing</label><select id="ptFacing"><option>East</option><option>West</option><option>North</option><option>South</option><option>North-East</option></select></div>
+          <div class="form-group"><label>Parking</label><select id="ptParking"><option value="false">No</option><option value="true">Yes</option></select></div>
+        </div>
+        <div class="form-group"><label>Image URL</label><input type="url" id="ptImg" placeholder="https://..."/></div>
+        <button class="btn btn-full" style="background:#b45309;color:#fff;" onclick="postProperty()">List Property →</button>
+      </div>
+    </div>
+
+    <!-- MY PROPERTIES -->
+    <div id="tab-myprop" class="hidden">
+      <div class="dash-header"><h1>My Properties</h1></div>
+      <div class="grid-3" id="myProps"></div>
+      <div id="emptyProps" class="empty-state hidden"><div class="empty-icon">🏠</div><h3>No properties listed yet</h3></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="tab-profile" class="hidden">
+      <div class="dash-header"><h1>My Profile</h1></div>
+      <div class="card" style="padding:28px;max-width:500px;">
+        <div class="form-group"><label>Full Name</label><input type="text" id="sName"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="sPhone"/></div>
+          <div class="form-group"><label>Location</label><select id="sLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
+        </div>
+        <button class="btn" style="background:#7c3aed;color:#fff;" onclick="saveProfile()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script>
+function showTab(id,el){
+  document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(id==='listings') renderMyListings();
+  if(id==='myprop') renderMyProps();
+}
+function init(){
+  const user=Auth.current();
+  if(!user){window.location.href='login.html';return;}
+  document.getElementById('navUser').textContent=user.name;
+  document.getElementById('sName').value=user.name;
+  document.getElementById('sPhone').value=user.phone||'';
+  const prods=DB.get('products').filter(p=>p.seller===user.name);
+  const props=DB.get('properties').filter(p=>p.owner===user.name);
+  document.getElementById('statProds').textContent=prods.length;
+  document.getElementById('statProps').textContent=props.length;
+  renderOverviewListings(prods.slice(0,4));
+}
+function renderOverviewListings(list){
+  document.getElementById('overviewListings').innerHTML=list.length?list.map(p=>`
+    <div class="card">
+      <img src="${p.img}" style="width:100%;height:150px;object-fit:cover;" onerror="this.src='https://placehold.co/300x150/f1f5f9/64748b?text=Product'"/>
+      <div style="padding:12px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${p.name}</div>
+        <div style="color:#25D366;font-weight:700;">${formatPrice(p.price)}</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;">${p.category} · ${p.condition}</div>
+      </div>
+    </div>`).join(''):'<p style="color:#64748b;font-size:14px;">No listings yet. <a href="#" onclick="showTab(\'post\',null)" style="color:#7c3aed;">Post one now</a></p>';
+}
+function renderMyListings(){
+  const user=Auth.current();
+  const list=DB.get('products').filter(p=>p.seller===user.name);
+  const empty=document.getElementById('emptyListings');
+  if(!list.length){document.getElementById('myListings').innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  document.getElementById('myListings').innerHTML=list.map(p=>`
+    <div class="card">
+      <img src="${p.img}" style="width:100%;height:150px;object-fit:cover;" onerror="this.src='https://placehold.co/300x150/f1f5f9/64748b?text=Product'"/>
+      <div style="padding:14px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${p.name}</div>
+        <div style="color:#25D366;font-weight:700;margin-bottom:8px;">${formatPrice(p.price)}</div>
+        <button class="btn btn-sm btn-full" style="background:#ef4444;color:#fff;" onclick="removeListing('${p.id}')">🗑 Remove</button>
+      </div>
+    </div>`).join('');
+}
+function renderMyProps(){
+  const user=Auth.current();
+  const list=DB.get('properties').filter(p=>p.owner===user.name);
+  const empty=document.getElementById('emptyProps');
+  if(!list.length){document.getElementById('myProps').innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  document.getElementById('myProps').innerHTML=list.map(p=>`
+    <div class="card">
+      <img src="${p.img}" style="width:100%;height:160px;object-fit:cover;" onerror="this.src='https://placehold.co/400x160/fef3c7/92400e?text=Property'"/>
+      <div style="padding:14px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${p.title}</div>
+        <div style="color:#25D366;font-weight:700;margin-bottom:4px;">${formatPrice(p.price)}</div>
+        <div style="font-size:12px;color:#64748b;">${p.type} · ${p.area} · ${p.location}</div>
+        <button class="btn btn-sm btn-full mt-2" style="background:#ef4444;color:#fff;" onclick="removeProp('${p.id}')">🗑 Remove</button>
+      </div>
+    </div>`).join('');
+}
+function postListing(){
+  const name=document.getElementById('pName').value.trim();
+  if(!name){toast('Please enter a product name','error');return;}
+  const user=Auth.current();
+  const prods=DB.get('products');
+  prods.unshift({
+    id:'p'+Date.now(),name,
+    category:document.getElementById('pCat').value,
+    price:parseInt(document.getElementById('pPrice').value)||0,
+    condition:document.getElementById('pCond').value,
+    age:document.getElementById('pAge').value||'N/A',
+    location:document.getElementById('pLoc').value,
+    img:document.getElementById('pImg').value||'https://placehold.co/300x170/f1f5f9/64748b?text='+encodeURIComponent(name),
+    seller:user.name,contact:user.phone
+  });
+  DB.set('products',prods);
+  document.getElementById('statProds').textContent=prods.filter(p=>p.seller===user.name).length;
+  toast('Listing posted!');
+  document.getElementById('pName').value='';document.getElementById('pPrice').value='';document.getElementById('pImg').value='';
+}
+function postProperty(){
+  const title=document.getElementById('ptTitle').value.trim();
+  if(!title){toast('Please enter a title','error');return;}
+  const user=Auth.current();
+  const props=DB.get('properties');
+  props.unshift({
+    id:'pr'+Date.now(),title,
+    type:document.getElementById('ptType').value,
+    price:parseInt(document.getElementById('ptPrice').value)||0,
+    area:document.getElementById('ptArea').value,
+    location:document.getElementById('ptLoc').value,
+    facing:document.getElementById('ptFacing').value,
+    parking:document.getElementById('ptParking').value==='true',
+    img:document.getElementById('ptImg').value||'https://placehold.co/400x200/fef3c7/92400e?text=Property',
+    owner:user.name,contact:user.phone,floors:1
+  });
+  DB.set('properties',props);
+  document.getElementById('statProps').textContent=props.filter(p=>p.owner===user.name).length;
+  toast('Property listed!');
+  document.getElementById('ptTitle').value='';document.getElementById('ptPrice').value='';
+}
+function removeListing(id){
+  const prods=DB.get('products').filter(p=>p.id!==id);
+  DB.set('products',prods);
+  const user=Auth.current();
+  document.getElementById('statProds').textContent=prods.filter(p=>p.seller===user.name).length;
+  toast('Listing removed!');renderMyListings();
+}
+function removeProp(id){
+  const props=DB.get('properties').filter(p=>p.id!==id);
+  DB.set('properties',props);
+  const user=Auth.current();
+  document.getElementById('statProps').textContent=props.filter(p=>p.owner===user.name).length;
+  toast('Property removed!');renderMyProps();
+}
+function saveProfile(){toast('Profile saved!');}
+init();
+</script>
+</body></html>

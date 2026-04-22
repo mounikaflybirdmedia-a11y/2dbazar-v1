@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Site clone (old files)
+site_clone/
+mirror_site.py
+serve_clone.py

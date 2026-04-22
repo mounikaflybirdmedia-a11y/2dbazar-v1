@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Properties — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a><a href="services.html">Services</a>
+      <a href="jobs.html">Jobs</a><a href="marketplace.html">Marketplace</a><a href="properties.html" class="active">Properties</a>
+    </div>
+    <div class="nav-actions" id="navActions"></div>
+  </div>
+</nav>
+<div style="background:linear-gradient(135deg,#b45309,#d97706);color:#fff;padding:40px 20px;text-align:center;">
+  <h1 style="font-size:32px;font-weight:800;margin-bottom:8px;">🏠 Properties</h1>
+  <p style="opacity:0.9;">Buy plots, houses and apartments in Vijayanagaram district</p>
+</div>
+<div class="container" style="padding-top:30px;padding-bottom:60px;">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+    <button class="btn btn-sm" style="background:#b45309;color:#fff;" onclick="openPropModal()">+ List Property</button>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="propSearch" placeholder="🔍 Search properties..."/>
+    <select id="propType"><option value="">All Types</option><option>Plot</option><option>House</option><option>Apartment</option></select>
+    <select id="propLoc">
+      <option value="">All Locations</option>
+      <option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
+    </select>
+    <select id="propPrice">
+      <option value="">Any Budget</option>
+      <option value="0-1000000">Under ₹10L</option>
+      <option value="1000000-3000000">₹10L–30L</option>
+      <option value="3000000-7000000">₹30L–70L</option>
+      <option value="7000000-99999999">Above ₹70L</option>
+    </select>
+    <button class="btn btn-sm" style="background:#b45309;color:#fff;" onclick="applyPropFilters()">Search</button>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="tabProp('',this)">All</button>
+    <button class="tab-btn" onclick="tabProp('Plot',this)">🌿 Plots</button>
+    <button class="tab-btn" onclick="tabProp('House',this)">🏡 Houses</button>
+    <button class="tab-btn" onclick="tabProp('Apartment',this)">🏢 Apartments</button>
+  </div>
+  <div id="propCount" style="font-size:14px;color:#64748b;margin-bottom:16px;"></div>
+  <div class="grid-3" id="propsGrid"></div>
+  <div id="emptyProps" class="empty-state hidden"><div class="empty-icon">🏠</div><h3>No properties found</h3><p>Try different filters</p></div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay hidden" id="propDetailModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header"><h3 id="pdTitle"></h3><button class="modal-close" onclick="closePropDetail()">✕</button></div>
+    <img id="pdImg" src="" style="width:100%;height:240px;object-fit:cover;border-radius:10px;margin-bottom:16px;"/>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div id="pdPrice" style="font-size:24px;font-weight:800;color:#25D366;"></div>
+      <span id="pdType" class="chip chip-orange"></span>
+    </div>
+    <div id="pdMeta" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:#475569;margin-bottom:16px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button id="pdWA" class="btn btn-green" style="flex:1;">💬 Contact Owner</button>
+      <button id="pdOffer" class="btn btn-outline" style="flex:1;">💰 Make Offer</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIST PROPERTY MODAL -->
+<div class="modal-overlay hidden" id="propModal">
+  <div class="modal">
+    <div class="modal-header"><h3>🏠 List Your Property</h3><button class="modal-close" onclick="closePropModal()">✕</button></div>
+    <div class="form-group"><label>Property Title</label><input type="text" id="ptTitle" placeholder="e.g. 2BHK House Near Bus Stand"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Type</label><select id="ptType"><option>Plot</option><option>House</option><option>Apartment</option></select></div>
+      <div class="form-group"><label>Price (₹)</label><input type="number" id="ptPrice" placeholder="e.g. 3500000"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Area</label><input type="text" id="ptArea" placeholder="e.g. 900 sqft"/></div>
+      <div class="form-group"><label>Location</label>
+        <select id="ptLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Facing</label><select id="ptFacing"><option>East</option><option>West</option><option>North</option><option>South</option><option>North-East</option></select></div>
+      <div class="form-group"><label>Image URL</label><input type="url" id="ptImg" placeholder="https://..."/></div>
+    </div>
+    <button class="btn btn-full" style="background:#b45309;color:#fff;" onclick="submitProperty()">List Property</button>
+  </div>
+</div>
+
+<a href="https://wa.me/919999999999" class="wa-float">💬</a>
+<script src="../js/data.js"></script>
+<script>
+let propTab='';
+function renderNav(){
+  const user=Auth.current();
+  const el=document.getElementById('navActions');
+  el.innerHTML=user
+    ?`<button onclick="window.location.href='dashboard-seller.html'" class="btn btn-outline btn-sm">⚡ Dashboard</button><button onclick="Auth.logout();location.reload();" class="btn btn-sm" style="background:#f1f5f9;">Logout</button>`
+    :`<a href="login.html" class="btn btn-outline btn-sm">Login</a><a href="signup.html" class="btn btn-sm" style="background:#b45309;color:#fff;">Sign Up</a>`;
+}
+function renderProps(list){
+  const grid=document.getElementById('propsGrid');
+  const empty=document.getElementById('emptyProps');
+  document.getElementById('propCount').textContent=`${list.length} propert${list.length!==1?'ies':'y'} found`;
+  if(!list.length){grid.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  grid.innerHTML=list.map(p=>`
+    <div class="card" style="cursor:pointer;" onclick='openPropDetail(${JSON.stringify(p).replace(/'/g,"&#39;")})'>
+      <div style="position:relative;">
+        <img class="card-img" src="${p.img}" alt="${p.title}" onerror="this.src='https://placehold.co/400x200/fef3c7/92400e?text=${encodeURIComponent(p.type)}'"/>
+        <span class="chip chip-orange" style="position:absolute;top:8px;left:8px;">${p.type}</span>
+        ${p.parking?'<span style="position:absolute;top:8px;right:8px;background:#fff;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">🚗 Parking</span>':''}
+      </div>
+      <div class="card-body">
+        <div class="card-title">${p.title}</div>
+        <div class="card-price">${formatPrice(p.price)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:#64748b;margin-bottom:12px;">
+          <span>📐 ${p.area}</span><span>📍 ${p.location}</span>
+          <span>🧭 ${p.facing} Facing</span><span>👤 ${p.owner}</span>
+        </div>
+        <button class="btn btn-green btn-full btn-sm" onclick="event.stopPropagation();openWA('${p.contact||'919999999999'}','Hi, I am interested in your property: ${encodeURIComponent(p.title)} listed on 2D Bazar.')">
+          💬 Contact Owner
+        </button>
+      </div>
+    </div>`).join('');
+}
+function getProps(){
+  let list=DB.get('properties');
+  const q=document.getElementById('propSearch').value.toLowerCase();
+  const type=document.getElementById('propType').value;
+  const loc=document.getElementById('propLoc').value;
+  const price=document.getElementById('propPrice').value;
+  if(propTab) list=list.filter(p=>p.type===propTab);
+  if(q) list=list.filter(p=>p.title.toLowerCase().includes(q)||p.location.toLowerCase().includes(q));
+  if(type) list=list.filter(p=>p.type===type);
+  if(loc) list=list.filter(p=>p.location===loc);
+  if(price){const[mn,mx]=price.split('-').map(Number);list=list.filter(p=>p.price>=mn&&p.price<=mx);}
+  return list;
+}
+function applyPropFilters(){renderProps(getProps());}
+function tabProp(type,el){
+  propTab=type;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderProps(getProps());
+}
+function openPropDetail(p){
+  document.getElementById('pdTitle').textContent=p.title;
+  document.getElementById('pdImg').src=p.img;
+  document.getElementById('pdImg').onerror=function(){this.src='https://placehold.co/580x240/fef3c7/92400e?text=Property';};
+  document.getElementById('pdPrice').textContent=formatPrice(p.price);
+  document.getElementById('pdType').textContent=p.type;
+  document.getElementById('pdMeta').innerHTML=`<span>📐 Area: ${p.area}</span><span>📍 ${p.location}</span><span>🧭 ${p.facing} Facing</span><span>🏗️ ${p.floors||0} Floor(s)</span><span>🚗 Parking: ${p.parking?'Yes':'No'}</span><span>👤 ${p.owner}</span>`;
+  document.getElementById('pdWA').onclick=()=>openWA(p.contact||'919999999999',`Hi, I am interested in your property: ${p.title} (${formatPrice(p.price)}).`);
+  document.getElementById('pdOffer').onclick=()=>{toast('Offer sent to owner!');closePropDetail();};
+  document.getElementById('propDetailModal').classList.remove('hidden');
+}
+function closePropDetail(){document.getElementById('propDetailModal').classList.add('hidden');}
+function openPropModal(){
+  if(!Auth.current()){window.location.href='login.html';return;}
+  document.getElementById('propModal').classList.remove('hidden');
+}
+function closePropModal(){document.getElementById('propModal').classList.add('hidden');}
+function submitProperty(){
+  const title=document.getElementById('ptTitle').value.trim();
+  if(!title){toast('Please enter a title','error');return;}
+  const user=Auth.current();
+  const props=DB.get('properties');
+  props.unshift({
+    id:'pr'+Date.now(),title,type:document.getElementById('ptType').value,
+    price:parseInt(document.getElementById('ptPrice').value)||0,
+    area:document.getElementById('ptArea').value,
+    location:document.getElementById('ptLoc').value,
+    facing:document.getElementById('ptFacing').value,
+    img:document.getElementById('ptImg').value||'https://placehold.co/400x200/fef3c7/92400e?text=Property',
+    owner:user.name,contact:user.phone,parking:false,floors:1
+  });
+  DB.set('properties',props);
+  toast('Property listed!');closePropModal();renderProps(getProps());
+}
+const urlType=new URLSearchParams(location.search).get('type');
+if(urlType){propTab=urlType;}
+renderNav();renderProps(getProps());
+</script>
+</body></html>

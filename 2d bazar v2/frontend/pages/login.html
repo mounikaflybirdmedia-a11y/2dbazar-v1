@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Login — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:36px;margin-bottom:8px;">🛒</div>
+      <h2>Welcome Back!</h2>
+      <p>Login to your 2D Bazar account</p>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="email" placeholder="you@example.com"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter password"/>
+    </div>
+    <button class="btn btn-green btn-full" onclick="doLogin()" style="margin-top:8px;">Login →</button>
+    <div class="divider">or</div>
+    <div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:13px;color:#64748b;margin-bottom:16px;">
+      <strong>Demo accounts:</strong><br/>
+      admin@2dbazar.com / admin123<br/>
+      provider@2dbazar.com / test123<br/>
+      employer@2dbazar.com / test123
+    </div>
+    <p style="text-align:center;font-size:14px;">Don't have an account? <a href="signup.html" style="color:#25D366;font-weight:600;">Sign Up Free</a></p>
+    <p style="text-align:center;font-size:13px;margin-top:10px;"><a href="../index.html" style="color:#64748b;">← Back to Home</a></p>
+  </div>
+</div>
+<script src="../js/data.js"></script>
+<script>
+const DASH_MAP = {
+  admin:'admin.html', service_provider:'dashboard-provider.html',
+  service_receiver:'dashboard-receiver.html', employer:'dashboard-employer.html',
+  job_seeker:'dashboard-seeker.html', seller:'dashboard-seller.html', buyer:'dashboard-buyer.html'
+};
+function doLogin() {
+  const email = document.getElementById('email').value.trim();
+  const pw = document.getElementById('password').value.trim();
+  if (!email||!pw) { toast('Please fill all fields','error'); return; }
+  const user = Auth.login(email, pw);
+  if (user) { toast('Login successful!'); setTimeout(()=>{ window.location.href = DASH_MAP[user.role]||'../index.html'; }, 800); }
+  else { toast('Invalid email or password','error'); }
+}
+document.addEventListener('keypress',e=>{ if(e.key==='Enter') doLogin(); });
+if(Auth.current()) window.location.href='../index.html';
+</script>
+</body></html>

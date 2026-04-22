@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Services — 2D Bazar</title>
+<link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="services.html" class="active">Services</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="marketplace.html">Marketplace</a>
+      <a href="properties.html">Properties</a>
+    </div>
+    <div class="nav-actions" id="navActions"></div>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div style="background:linear-gradient(135deg,#0f4c35,#25D366);color:#fff;padding:40px 20px;text-align:center;">
+  <h1 style="font-size:32px;font-weight:800;margin-bottom:8px;">🔧 Services</h1>
+  <p style="opacity:0.9;">Book trusted home & office service professionals near you</p>
+</div>
+
+<div class="container" style="padding-top:30px;padding-bottom:60px;">
+  <!-- POST REQUEST BTN -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+    <button class="btn btn-green" onclick="openPostModal()">+ Post Service Request</button>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <input type="text" id="searchQ" placeholder="🔍 Search services..."/>
+    <select id="catFilter">
+      <option value="">All Categories</option>
+      <option>Plumbing</option><option>Electrical</option><option>Carpentry</option>
+      <option>Cleaning</option><option>Painting</option><option>AC Repair</option><option>Appliance Repair</option>
+    </select>
+    <select id="locFilter">
+      <option value="">All Locations</option>
+      <option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
+    </select>
+    <select id="priceFilter">
+      <option value="">Any Price</option>
+      <option value="0-300">Under ₹300/hr</option>
+      <option value="300-600">₹300–600</option>
+      <option value="600-99999">Above ₹600</option>
+    </select>
+    <button class="btn btn-green btn-sm" onclick="applyFilters()">Apply</button>
+    <button class="btn btn-outline btn-sm" onclick="resetFilters()">Reset</button>
+  </div>
+
+  <!-- CATEGORY TABS -->
+  <div class="tabs" id="catTabs">
+    <button class="tab-btn active" onclick="filterByTab('',this)">All</button>
+    <button class="tab-btn" onclick="filterByTab('Plumbing',this)">🔧 Plumbing</button>
+    <button class="tab-btn" onclick="filterByTab('Electrical',this)">⚡ Electrical</button>
+    <button class="tab-btn" onclick="filterByTab('Carpentry',this)">🪵 Carpentry</button>
+    <button class="tab-btn" onclick="filterByTab('Cleaning',this)">🧹 Cleaning</button>
+    <button class="tab-btn" onclick="filterByTab('Painting',this)">🎨 Painting</button>
+    <button class="tab-btn" onclick="filterByTab('AC Repair',this)">❄️ AC Repair</button>
+    <button class="tab-btn" onclick="filterByTab('Appliance Repair',this)">🔌 Appliance</button>
+  </div>
+
+  <div id="resultsCount" style="font-size:14px;color:#64748b;margin-bottom:16px;"></div>
+  <div class="grid-3" id="servicesGrid"></div>
+  <div id="emptyServices" class="empty-state hidden">
+    <div class="empty-icon">🔍</div>
+    <h3>No services found</h3>
+    <p>Try different filters or search terms</p>
+  </div>
+</div>
+
+<!-- POST REQUEST MODAL -->
+<div class="modal-overlay hidden" id="postModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📋 Post Service Request</h3>
+      <button class="modal-close" onclick="closePostModal()">✕</button>
+    </div>
+    <div class="form-group"><label>Service Type</label>
+      <select id="reqService"><option>Plumbing</option><option>Electrical</option><option>Carpentry</option><option>Cleaning</option><option>Painting</option><option>AC Repair</option><option>Appliance Repair</option></select>
+    </div>
+    <div class="form-group"><label>Work Description</label><textarea id="reqDesc" placeholder="Describe the work needed..."></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Budget (₹)</label><input type="number" id="reqBudget" placeholder="e.g. 500"/></div>
+      <div class="form-group"><label>Location</label>
+        <select id="reqLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Preferred Date</label><input type="date" id="reqDate"/></div>
+    <button class="btn btn-green btn-full" onclick="submitRequest()">Submit Request</button>
+  </div>
+</div>
+
+<a href="https://wa.me/919999999999" class="wa-float">💬</a>
+<script src="../js/data.js"></script>
+<script>
+let activeTab = '';
+function renderNav() {
+  const user = Auth.current();
+  const el = document.getElementById('navActions');
+  if (user) {
+    el.innerHTML = `<button onclick="window.location.href='dashboard-${user.role==='service_provider'?'provider':user.role==='service_receiver'?'receiver':user.role}.html'" class="btn btn-outline btn-sm">⚡ Dashboard</button>
+    <button onclick="Auth.logout();location.reload();" class="btn btn-sm" style="background:#f1f5f9;">Logout</button>`;
+  } else {
+    el.innerHTML = `<a href="login.html" class="btn btn-outline btn-sm">Login</a><a href="signup.html" class="btn btn-green btn-sm">Sign Up</a>`;
+  }
+}
+function renderServices(list) {
+  const grid = document.getElementById('servicesGrid');
+  const empty = document.getElementById('emptyServices');
+  document.getElementById('resultsCount').textContent = `Showing ${list.length} service${list.length!==1?'s':''}`;
+  if (!list.length) { grid.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  grid.innerHTML = list.map(s => `
+    <div class="card" style="position:relative;">
+      <img class="card-img" src="${s.img}" alt="${s.title}" onerror="this.src='https://placehold.co/400x200/25D366/fff?text=${encodeURIComponent(s.category)}'"/>
+      <span class="badge badge-orange badge-top">${s.badge}</span>
+      <div class="card-body">
+        <div style="font-size:11px;color:#64748b;font-weight:600;margin-bottom:4px;">${s.category}</div>
+        <div class="card-title">${s.title}</div>
+        <div class="card-price">₹${s.price}/${s.unit}</div>
+        <div class="card-location">📍 ${s.location}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
+          <span class="rating">${stars(s.rating)}</span>
+          <span style="font-size:12px;color:#64748b;">${s.rating} (${s.reviews} reviews)</span>
+        </div>
+        <button class="btn btn-green btn-full btn-sm" onclick="openWA('919999999999','Hi, I need ${encodeURIComponent(s.title)} service from 2D Bazar.')">
+          💬 Chat on WhatsApp
+        </button>
+      </div>
+    </div>`).join('');
+}
+function getFiltered() {
+  let list = DB.get('services');
+  const q = document.getElementById('searchQ').value.toLowerCase();
+  const cat = document.getElementById('catFilter').value;
+  const loc = document.getElementById('locFilter').value;
+  const price = document.getElementById('priceFilter').value;
+  if (activeTab) list = list.filter(s => s.category === activeTab);
+  if (q) list = list.filter(s => s.title.toLowerCase().includes(q) || s.category.toLowerCase().includes(q));
+  if (cat) list = list.filter(s => s.category === cat);
+  if (loc) list = list.filter(s => s.location === loc);
+  if (price) {
+    const [mn,mx] = price.split('-').map(Number);
+    list = list.filter(s => s.price >= mn && s.price <= mx);
+  }
+  return list;
+}
+function applyFilters() { renderServices(getFiltered()); }
+function resetFilters() {
+  document.getElementById('searchQ').value='';
+  document.getElementById('catFilter').value='';
+  document.getElementById('locFilter').value='';
+  document.getElementById('priceFilter').value='';
+  activeTab='';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  renderServices(DB.get('services'));
+}
+function filterByTab(cat, el) {
+  activeTab = cat;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderServices(getFiltered());
+}
+function openPostModal() {
+  if (!Auth.current()) { window.location.href='login.html'; return; }
+  document.getElementById('postModal').classList.remove('hidden');
+}
+function closePostModal() { document.getElementById('postModal').classList.add('hidden'); }
+function submitRequest() {
+  const desc = document.getElementById('reqDesc').value.trim();
+  if (!desc) { toast('Please describe the work needed','error'); return; }
+  const reqs = DB.get('service_requests');
+  reqs.push({
+    id:'req'+Date.now(), service:document.getElementById('reqService').value,
+    desc, budget:document.getElementById('reqBudget').value,
+    location:document.getElementById('reqLoc').value,
+    date:document.getElementById('reqDate').value,
+    userId:Auth.current().id, status:'Open', ts:Date.now()
+  });
+  DB.set('service_requests',reqs);
+  toast('Request posted! Providers will contact you soon.');
+  closePostModal();
+}
+// Check URL param
+const urlCat = new URLSearchParams(location.search).get('cat');
+if (urlCat) { activeTab = urlCat; }
+renderNav();
+renderServices(getFiltered());
+</script>
+</body></html>
