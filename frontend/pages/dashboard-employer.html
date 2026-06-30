@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KTW607FH1F');
+</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Employer Dashboard — 2D Bazar</title>
 <link rel="stylesheet" href="../css/style.css"/>
@@ -159,6 +168,7 @@ function renderMyJobs(){
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <span class="chip chip-blue">${j.type}</span>
+        <span class="chip ${j.approval_status==='Pending'?'chip-orange':'chip-green'}">${j.approval_status||'Approved'}</span>
         <button class="btn btn-outline btn-sm" onclick="deleteJob('${j.id}')">🗑 Remove</button>
       </div>
     </div>`).join('');
@@ -199,12 +209,14 @@ function postJob(){
     posted:'Just now',
     openings:parseInt(document.getElementById('jOpenings').value)||1,
     perks:document.getElementById('jPerks').value.split(',').map(s=>s.trim()).filter(Boolean),
-    skills:document.getElementById('jSkills').value.split(',').map(s=>s.trim()).filter(Boolean)
+    skills:document.getElementById('jSkills').value.split(',').map(s=>s.trim()).filter(Boolean),
+    approval_status: 'Pending'
   });
   DB.set('jobs',jobs);
   toast('Job posted successfully!');
   document.getElementById('jTitle').value='';
   document.getElementById('statJobs').textContent=jobs.length;
+  renderMyJobs();
 }
 function deleteJob(id){
   const jobs=DB.get('jobs').filter(j=>j.id!==id);

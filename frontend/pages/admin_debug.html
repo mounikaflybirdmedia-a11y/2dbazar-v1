@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KTW607FH1F');
+</script><title>Debug</title></head>
+<body>
+    <h1>Local Storage Debugger</h1>
+    <div id="output" style="white-space: pre-wrap; font-family: monospace; background: #f4f4f4; padding: 20px;"></div>
+    <script>
+        document.getElementById('output').innerText = localStorage.getItem('2dbazar_property_inquiries') || 'NO LEADS FOUND IN LOCAL STORAGE!';
+    </script>
+</body>
+</html>

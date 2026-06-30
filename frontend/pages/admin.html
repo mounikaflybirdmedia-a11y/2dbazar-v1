@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KTW607FH1F');
+</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Admin Dashboard — 2D Bazar</title>
 <link rel="stylesheet" href="../css/style.css"/>
@@ -27,6 +36,7 @@
       <div class="sidebar-item" onclick="showTab('jobs',this)"><span class="icon">💼</span> Jobs</div>
       <div class="sidebar-item" onclick="showTab('products',this)"><span class="icon">🛒</span> Products</div>
       <div class="sidebar-item" onclick="showTab('properties',this)"><span class="icon">🏠</span> Properties</div>
+      <div class="sidebar-item" onclick="showTab('approvals',this)"><span class="icon">⏳</span> Approvals</div>
       <div class="sidebar-label">Reports</div>
       <div class="sidebar-item" onclick="showTab('analytics',this)"><span class="icon">📈</span> Analytics</div>
       <div class="sidebar-item" onclick="showTab('settings',this)"><span class="icon">⚙️</span> Settings</div>
@@ -40,6 +50,7 @@
         <span style="font-size:13px;color:#64748b;">Last updated: <span id="lastUpdated"></span></span>
       </div>
       <div class="stats-row">
+        <div class="stat-card" onclick="showTab('approvals', document.querySelector('[onclick*=\\\'approvals\\\']'))" style="cursor:pointer;"><div class="stat-icon" style="background:#fef3c7;color:#f59e0b;">⏳</div><div class="stat-info"><h3 id="pendingApprovals">0</h3><p>Pending Approvals</p></div></div>
         <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-info"><h3 id="totalUsers">0</h3><p>Total Users</p></div></div>
         <div class="stat-card"><div class="stat-icon">🔧</div><div class="stat-info"><h3 id="totalServices">0</h3><p>Services Listed</p></div></div>
         <div class="stat-card"><div class="stat-icon">💼</div><div class="stat-info"><h3 id="totalJobs">0</h3><p>Active Jobs</p></div></div>
@@ -130,6 +141,17 @@
       </div>
     </div>
 
+    <!-- APPROVALS -->
+    <div id="tab-approvals" class="hidden">
+      <div class="dash-header"><h1>Pending Approvals</h1></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Title/Name</th><th>Submitted By</th><th>Actions</th></tr></thead>
+          <tbody id="approvalsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- ANALYTICS -->
     <div id="tab-analytics" class="hidden">
       <div class="dash-header"><h1>Platform Analytics</h1></div>
@@ -186,12 +208,13 @@ function showTab(id,el){
   if(id==='jobs') renderJobsTable();
   if(id==='products') renderProductsTable();
   if(id==='properties') renderPropsTable();
+  if(id==='approvals') renderApprovals();
   if(id==='analytics') renderAnalytics();
 }
 
 function init(){
   const user=Auth.current();
-  if(!user||user.role!=='admin'){window.location.href='login.html';return;}
+  if(!user||user.role!=='admin'){window.location.href='admin-login.html';return;}
   document.getElementById('lastUpdated').textContent=new Date().toLocaleString('en-IN');
   const users=DB.get('users');
   const services=DB.get('services');
@@ -199,6 +222,12 @@ function init(){
   const products=DB.get('products');
   const properties=DB.get('properties');
   const reqs=DB.get('service_requests');
+  let pendingCount = 0;
+  ['services','jobs','products','properties'].forEach(key => {
+    pendingCount += DB.get(key).filter(item => item.approval_status === 'Pending').length;
+  });
+  pendingCount += DB.get('service_requests').filter(item => item.status === 'Open' || item.status === 'Pending' || item.approval_status === 'Pending').length;
+  document.getElementById('pendingApprovals').textContent=pendingCount;
   document.getElementById('totalUsers').textContent=users.length;
   document.getElementById('totalServices').textContent=services.length;
   document.getElementById('totalJobs').textContent=jobs.length;
@@ -332,6 +361,51 @@ function renderPropsTable(){
 function deleteProp(id){
   const list=DB.get('properties').filter(p=>p.id!==id);DB.set('properties',list);
   toast('Property removed!');renderPropsTable();document.getElementById('totalProperties').textContent=list.length;
+}
+
+function renderApprovals(){
+  let html = '';
+  ['services','jobs','products','properties','service_requests'].forEach(type => {
+    const items = DB.get(type).filter(item => {
+      if (type === 'service_requests') return item.status === 'Open' || item.status === 'Pending' || item.approval_status === 'Pending';
+      return item.approval_status === 'Pending';
+    });
+    items.forEach(item => {
+      const title = item.title || item.name || item.service || item.desc || 'Request';
+      const submittedBy = item.provider || item.company || item.seller || item.owner || item.userId || 'User';
+      const label = type === 'service_requests' ? 'Request' : type.replace('_', ' ');
+      html += `<tr>
+        <td><span class="chip chip-orange" style="text-transform:capitalize;">${label}</span></td>
+        <td style="font-weight:600;font-size:13px;">${title}</td>
+        <td style="font-size:13px;">${submittedBy}</td>
+        <td>
+          <button class="btn btn-sm btn-green" onclick="approveItem('${type}', '${item.id}')">Approve</button>
+          <button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="rejectItem('${type}', '${item.id}')">Reject</button>
+        </td>
+      </tr>`;
+    });
+  });
+  if(!html) html = '<tr><td colspan="4" style="text-align:center;padding:20px;">No pending approvals</td></tr>';
+  document.getElementById('approvalsTable').innerHTML = html;
+}
+function approveItem(type, id){
+  let list = DB.get(type);
+  let item = list.find(i => i.id === id);
+  if(item){
+    item.approval_status = 'Approved';
+    DB.set(type, list);
+    toast('Item Approved!');
+    renderApprovals();
+    init(); // Refresh count
+  }
+}
+function rejectItem(type, id){
+  if(!confirm('Reject and delete this item?')) return;
+  let list = DB.get(type).filter(i => i.id !== id);
+  DB.set(type, list);
+  toast('Item Rejected & Removed!');
+  renderApprovals();
+  init(); // Refresh count
 }
 
 function renderAnalytics(){

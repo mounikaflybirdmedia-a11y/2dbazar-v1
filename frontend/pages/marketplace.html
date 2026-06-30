@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KTW607FH1F');
+</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Marketplace — 2D Bazar</title>
 <link rel="stylesheet" href="../css/style.css"/>
@@ -133,7 +142,7 @@ function renderProducts(list) {
     </div>`).join('');
 }
 function getProducts(){
-  let list=DB.get('products');
+  let list=DB.get('products').filter(p=>p.approval_status!=='Pending');
   const q=document.getElementById('prodSearch').value.toLowerCase();
   const cat=document.getElementById('prodCat').value;
   const loc=document.getElementById('prodLoc').value;
@@ -188,7 +197,8 @@ function submitListing(){
     condition:document.getElementById('sCond').value,
     location:document.getElementById('sLoc').value,
     img:document.getElementById('sImg').value||'https://placehold.co/300x170/f1f5f9/64748b?text='+encodeURIComponent(name),
-    seller:user.name,contact:user.phone,age:'New'
+    seller:user.name,contact:user.phone,age:'New',
+    approval_status: 'Pending'
   };
   prods.unshift(p);DB.set('products',prods);
   toast('Listing posted!');closeSellModal();renderProducts(getProducts());

@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KTW607FH1F');
+</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Properties — 2D Bazar</title>
 <link rel="stylesheet" href="../css/style.css"/>
@@ -129,7 +138,7 @@ function renderProps(list){
     </div>`).join('');
 }
 function getProps(){
-  let list=DB.get('properties');
+  let list=DB.get('properties').filter(p=>p.approval_status!=='Pending');
   const q=document.getElementById('propSearch').value.toLowerCase();
   const type=document.getElementById('propType').value;
   const loc=document.getElementById('propLoc').value;
@@ -177,7 +186,8 @@ function submitProperty(){
     location:document.getElementById('ptLoc').value,
     facing:document.getElementById('ptFacing').value,
     img:document.getElementById('ptImg').value||'https://placehold.co/400x200/fef3c7/92400e?text=Property',
-    owner:user.name,contact:user.phone,parking:false,floors:1
+    owner:user.name,contact:user.phone,parking:false,floors:1,
+    approval_status: 'Pending'
   });
   DB.set('properties',props);
   toast('Property listed!');closePropModal();renderProps(getProps());

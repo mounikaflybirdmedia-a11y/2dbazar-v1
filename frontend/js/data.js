@@ -1,34 +1,103 @@
 // ============================================================
-// 2D BAZAR — MOCK DATA & GLOBAL STATE (localStorage backed)
+// 2DBazaar — MOCK DATA & GLOBAL STATE (localStorage backed)
 // ============================================================
 
+const API_URL = '/api/api.php';
+const LEADS_URL = 'http://72.61.230.47/api/leads.php';
+
 const DB = {
-  get: (key) => JSON.parse(localStorage.getItem('2dbazar_' + key) || 'null'),
-  set: (key, val) => localStorage.setItem('2dbazar_' + key, JSON.stringify(val)),
-  init: function(key, def) { if (!this.get(key)) this.set(key, def); return this.get(key); }
+  get: (key) => { const d = localStorage.getItem('2dbazar_'+key); return d ? JSON.parse(d) : []; },
+  set: (key, val) => {
+    // Never write private session keys to localStorage or MySQL
+    if (PRIVATE_KEYS.includes(key)) {
+      sessionStorage.setItem('2dbazar_'+key, JSON.stringify(val));
+      return;
+    }
+    localStorage.setItem('2dbazar_'+key, JSON.stringify(val));
+    fetch(API_URL + '?action=set&key=' + key, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(val)
+    }).catch(e => console.error("Sync error:", e));
+  },
+  init: (key, fallback) => {
+    if(!localStorage.getItem('2dbazar_'+key)) {
+        if(['services', 'jobs', 'products', 'properties'].includes(key)) {
+            fallback = fallback.map(item => ({ approval_status: 'Approved', ...item }));
+        }
+        localStorage.setItem('2dbazar_'+key, JSON.stringify(fallback));
+        sessionStorage.setItem('needs_reload', 'true');
+    } else {
+        if(['services', 'jobs', 'products', 'properties'].includes(key)) {
+            try {
+                let current = localStorage.getItem('2dbazar_'+key);
+                let parsed = JSON.parse(current);
+                let migrated = false;
+                parsed = parsed.map(item => {
+                    if(!item.approval_status) {
+                        item.approval_status = 'Approved';
+                        migrated = true;
+                    }
+                    return item;
+                });
+                if(migrated) {
+                    localStorage.setItem('2dbazar_'+key, JSON.stringify(parsed));
+                }
+            } catch(e) { console.error(e); }
+        }
+    }
+  },
+  reset: () => { localStorage.clear(); location.reload(); }
 };
+
+// PRIVATE_KEYS: never synced to MySQL, never stored in shared localStorage
+// current_user is per-tab via sessionStorage only
+const PRIVATE_KEYS = ['current_user'];
+
+// Force remove any legacy localStorage session to prevent persistent auto-login
+localStorage.removeItem('2dbazar_current_user');
+
+// Initial Sync from Live DB
+function syncFromLiveDB() {
+  fetch(API_URL + '?action=get_all')
+    .then(r => r.json())
+    .then(data => {
+      if(data.status === 'success' && data.db) {
+         for(const key in data.db) {
+            if(PRIVATE_KEYS.includes(key)) continue; // NEVER touch session keys
+            const local = localStorage.getItem('2dbazar_'+key);
+            const remote = JSON.stringify(data.db[key]);
+            if(local !== remote) {
+               localStorage.setItem('2dbazar_'+key, remote);
+               // NOTE: NO page reload here — reload breaks sessionStorage and logs users out
+            }
+         }
+      }
+    }).catch(e => console.error("Sync error:", e));
+}
+syncFromLiveDB();
 
 // ── SEED DATA ──────────────────────────────────────────────
 
 const SEED_SERVICES = [
   { id:'s1', category:'Plumbing', title:'Expert Plumber - Pipe & Tap Repair', price:300, unit:'hr', location:'Vijayanagaram', badge:'Top Rated', rating:4.8, reviews:124, provider:'Ravi Kumar', img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80', status:'active' },
-  { id:'s2', category:'Plumbing', title:'Emergency Leak Fixing', price:450, unit:'hr', location:'Vizianagaram', badge:'Popular', rating:4.6, reviews:89, provider:'Suresh Babu', img:'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&q=80', status:'active' },
+  { id:'s2', category:'Plumbing', title:'Emergency Leak Fixing', price:450, unit:'hr', location:'Vizianagaram', badge:'Popular', rating:4.6, reviews:89, provider:'Suresh Babu', img:'/assets/images/pipe_leak.png', status:'active' },
   { id:'s3', category:'Electrical', title:'Licensed Electrician - Wiring & Repair', price:400, unit:'hr', location:'Vijayanagaram', badge:'Verified', rating:4.9, reviews:210, provider:'Kiran Reddy', img:'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&q=80', status:'active' },
   { id:'s4', category:'Electrical', title:'Inverter & Solar Panel Setup', price:350, unit:'hr', location:'Bobbili', badge:'Premium', rating:4.7, reviews:67, provider:'Naresh Varma', img:'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=80', status:'active' },
-  { id:'s5', category:'Carpentry', title:'Custom Furniture & Cabinet Maker', price:500, unit:'hr', location:'Vijayanagaram', badge:'Premium', rating:4.8, reviews:155, provider:'Venkat Rao', img:'https://images.unsplash.com/photo-1605152276897-4f618f831968?w=400&q=80', status:'active' },
-  { id:'s6', category:'Carpentry', title:'Door & Window Repair Specialist', price:250, unit:'hr', location:'Salur', badge:'Popular', rating:4.5, reviews:78, provider:'Prasad Babu', img:'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&q=80', status:'active' },
+  { id:'s5', category:'Carpentry', title:'Custom Furniture & Cabinet Maker', price:500, unit:'hr', location:'Vijayanagaram', badge:'Premium', rating:4.8, reviews:155, provider:'Venkat Rao', img:'/assets/images/cabinet_maker.png', status:'active' },
+  { id:'s6', category:'Carpentry', title:'Door & Window Repair Specialist', price:250, unit:'hr', location:'Salur', badge:'Popular', rating:4.5, reviews:78, provider:'Prasad Babu', img:'/assets/images/door_window.png', status:'active' },
   { id:'s7', category:'Cleaning', title:'Deep Home Cleaning Service', price:800, unit:'day', location:'Vijayanagaram', badge:'Top Rated', rating:4.9, reviews:302, provider:'CleanPro Team', img:'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&q=80', status:'active' },
-  { id:'s8', category:'Cleaning', title:'Sofa & Carpet Steam Cleaning', price:600, unit:'job', location:'Parvathipuram', badge:'Popular', rating:4.6, reviews:92, provider:'Fresh Home Services', img:'https://images.unsplash.com/photo-1527515545081-5db817172677?w=400&q=80', status:'active' },
+  { id:'s8', category:'Cleaning', title:'Sofa & Carpet Steam Cleaning', price:600, unit:'job', location:'Parvathipuram', badge:'Popular', rating:4.6, reviews:92, provider:'Fresh Home Services', img:'/assets/images/sofa_cleaning.png', status:'active' },
   { id:'s9', category:'Painting', title:'Interior Wall Painting (Per Room)', price:1200, unit:'room', location:'Vijayanagaram', badge:'Premium', rating:4.7, reviews:143, provider:'Color Masters', img:'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&q=80', status:'active' },
   { id:'s10', category:'Painting', title:'Exterior House Painting', price:15000, unit:'job', location:'Vizianagaram', badge:'Top Rated', rating:4.8, reviews:55, provider:'Bright Paints', img:'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&q=80', status:'active' },
-  { id:'s11', category:'AC Repair', title:'AC Service & Gas Refilling', price:550, unit:'job', location:'Vijayanagaram', badge:'Verified', rating:4.8, reviews:188, provider:'Cool Tech Services', img:'https://images.unsplash.com/photo-1631567091196-4283a62e1b5e?w=400&q=80', status:'active' },
-  { id:'s12', category:'AC Repair', title:'AC Installation & Uninstallation', price:800, unit:'job', location:'Bobbili', badge:'Popular', rating:4.5, reviews:76, provider:'Arctic Cool', img:'https://images.unsplash.com/photo-1615497001839-b0a0eac3274c?w=400&q=80', status:'active' },
+  { id:'s11', category:'AC Repair', title:'AC Service & Gas Refilling', price:550, unit:'job', location:'Vijayanagaram', badge:'Verified', rating:4.8, reviews:188, provider:'Cool Tech Services', img:'/assets/images/ac_service.png', status:'active' },
+  { id:'s12', category:'AC Repair', title:'AC Installation & Uninstallation', price:800, unit:'job', location:'Bobbili', badge:'Popular', rating:4.5, reviews:76, provider:'Arctic Cool', img:'/assets/images/ac_installation.png', status:'active' },
   { id:'s13', category:'Appliance Repair', title:'Washing Machine Repair Expert', price:350, unit:'job', location:'Vijayanagaram', badge:'Verified', rating:4.7, reviews:134, provider:'Fix It Fast', img:'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400&q=80', status:'active' },
-  { id:'s14', category:'Appliance Repair', title:'Refrigerator & TV Repair', price:400, unit:'job', location:'Salur', badge:'Top Rated', rating:4.6, reviews:98, provider:'Home Fix Pro', img:'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&q=80', status:'active' },
+  { id:'s14', category:'Appliance Repair', title:'Refrigerator & TV Repair', price:400, unit:'job', location:'Salur', badge:'Top Rated', rating:4.6, reviews:98, provider:'Home Fix Pro', img:'/assets/images/refrigerator_tv.png', status:'active' },
 ];
 
 const SEED_JOBS = [
-  { id:'j1', title:'Telecaller - Customer Support', company:'2D Bazar', salary:'₹12,000–15,000/mo', location:'Vijayanagaram', type:'Full Time', shift:'Morning', category:'Telecaller', posted:'2 days ago', perks:['PF','ESI','Incentives'], skills:['Communication','Hindi/Telugu'], openings:5 },
+  { id:'j1', title:'Telecaller - Customer Support', company:'2DBazaar', salary:'₹12,000–15,000/mo', location:'Vijayanagaram', type:'Full Time', shift:'Morning', category:'Telecaller', posted:'2 days ago', perks:['PF','ESI','Incentives'], skills:['Communication','Hindi/Telugu'], openings:5 },
   { id:'j2', title:'Web Developer - React & Node.js', company:'TechSoft Solutions', salary:'₹25,000–40,000/mo', location:'Vizianagaram', type:'Full Time', shift:'Day', category:'IT/Developer', posted:'1 day ago', perks:['Remote','Health Insurance','Bonus'], skills:['React','Node.js','MongoDB'], openings:2 },
   { id:'j3', title:'Office Admin Assistant', company:'Sri Sai Enterprises', salary:'₹10,000–13,000/mo', location:'Vijayanagaram', type:'Full Time', shift:'Day', category:'Admin', posted:'3 days ago', perks:['PF','Lunch'], skills:['MS Office','Communication'], openings:3 },
   { id:'j4', title:'Housekeeping Staff - Hotel', company:'Hotel Vijaya Grand', salary:'₹8,000–10,000/mo', location:'Vijayanagaram', type:'Full Time', shift:'Rotational', category:'Housekeeping', posted:'Today', perks:['Accommodation','Meals'], skills:['Cleaning','Discipline'], openings:8 },
@@ -62,7 +131,7 @@ const SEED_PROPERTIES = [
 
 // ── USERS SEED ──────────────────────────────────────────────
 const SEED_USERS = [
-  { id:'u1', name:'Admin User', email:'admin@2dbazar.com', password:'admin123', role:'admin', phone:'9999999999', location:'Vijayanagaram', avatar:'A' },
+  { id:'u1', name:'Admin User', email:'admin@2dbazar.com', password:'admin123', role:'admin.html', phone:'9121600133', location:'Vijayanagaram', avatar:'A' },
   { id:'u2', name:'Ravi Provider', email:'provider@2dbazar.com', password:'test123', role:'service_provider', phone:'9876543210', location:'Vijayanagaram', avatar:'R', category:'Plumbing', experience:5, rate:300 },
   { id:'u3', name:'Priya Customer', email:'customer@2dbazar.com', password:'test123', role:'service_receiver', phone:'9876543211', location:'Vijayanagaram', avatar:'P' },
   { id:'u4', name:'TechCorp HR', email:'employer@2dbazar.com', password:'test123', role:'employer', phone:'9876543212', location:'Vizianagaram', company:'TechCorp', avatar:'T' },
@@ -71,38 +140,112 @@ const SEED_USERS = [
   { id:'u7', name:'Buyer Bala', email:'buyer@2dbazar.com', password:'test123', role:'buyer', phone:'9876543215', location:'Vijayanagaram', avatar:'B' },
 ];
 
+const SEED_SERVICE_REQUESTS = [
+  { id: 'req1', service: 'Plumbing', desc: 'Need fixing for a leaking tap', budget: '300', location: 'Vijayanagaram', date: '2026-05-21', userId: 'u3', status: 'Open', ts: Date.now() - 86400000 },
+  { id: 'req2', service: 'Electrical', desc: 'Ceiling fan installation', budget: '500', location: 'Vizianagaram', date: '2026-05-22', userId: 'u7', status: 'Accepted', ts: Date.now() - 172800000 },
+];
+
+const SEED_JOB_APPLICATIONS = [
+  { id: 'app1', jobTitle: 'Telecaller - Customer Support', applicantName: 'Arjun Seeker', employerName: '2DBazaar', status: 'Applied', ts: Date.now() - 40000000 },
+  { id: 'app2', jobTitle: 'Office Admin Assistant', applicantName: 'Sita Rani', employerName: 'Sri Sai Enterprises', status: 'Under Review', ts: Date.now() - 86400000 },
+];
+
+const SEED_ORDERS = [
+  { id: 'ORD-1001', date: new Date(Date.now() - 10000000).toLocaleDateString(), userId: 'u7', total: 45000, payment: 'Cash on Delivery', status: 'Pending', items: [{name: 'Samsung Galaxy S23', price: 45000}] },
+  { id: 'ORD-1002', date: new Date(Date.now() - 50000000).toLocaleDateString(), userId: 'u7', total: 32000, payment: 'Paid Online', status: 'Delivered', items: [{name: 'Dell Laptop i5', price: 32000}] },
+];
+
 // ── INIT DB ─────────────────────────────────────────────────
 DB.init('services', SEED_SERVICES);
 DB.init('jobs', SEED_JOBS);
 DB.init('products', SEED_PRODUCTS);
 DB.init('properties', SEED_PROPERTIES);
 DB.init('users', SEED_USERS);
-DB.init('service_requests', []);
-DB.init('job_applications', []);
+DB.init('service_requests', SEED_SERVICE_REQUESTS);
+DB.init('job_applications', SEED_JOB_APPLICATIONS);
+DB.init('orders', SEED_ORDERS);
+DB.init('property_inquiries', []);
 DB.init('offers', []);
 DB.init('wishlist', []);
 
+// Repair corrupted u4/u2 user data in localStorage if mutated during development tab-mixing
+try {
+  let storedUsers = localStorage.getItem('2dbazar_users');
+  if (storedUsers) {
+    let parsedUsers = JSON.parse(storedUsers);
+    let modified = false;
+    parsedUsers = parsedUsers.map(u => {
+      if (u.id === 'u4' && u.email === 'employer@2dbazar.com' && (u.name === 'Ravi Provider' || u.phone === '9876543210')) {
+        u.name = 'TechCorp HR';
+        u.phone = '9876543212';
+        u.location = 'Vizianagaram';
+        u.company = 'TechCorp';
+        u.avatar = 'T';
+        delete u.category;
+        delete u.rate;
+        delete u.experience;
+        delete u.skills;
+        delete u.address;
+        delete u.bio;
+        modified = true;
+      }
+      return u;
+    });
+    if (modified) {
+      localStorage.setItem('2dbazar_users', JSON.stringify(parsedUsers));
+      // Reset any active session that might be corrupted
+      const curr = sessionStorage.getItem('2dbazar_current_user');
+      if (curr) {
+        const parsedCurr = JSON.parse(curr);
+        if (parsedCurr.id === 'u4' && parsedCurr.name === 'Ravi Provider') {
+          sessionStorage.removeItem('2dbazar_current_user');
+        }
+      }
+    }
+  }
+} catch (e) {
+  console.error("Migration repair error:", e);
+}
+
 // ── AUTH HELPERS ─────────────────────────────────────────────
+// SESSION DESIGN:
+//   sessionStorage → per-tab isolated (each browser tab = independent user)
+//   PRIVATE_KEYS   → 'current_user' never synced to MySQL
+//
+//   Tab 1: Ravi logged in  → Tab 1 sessionStorage = Ravi
+//   Tab 2: TechCorp logged in → Tab 2 sessionStorage = TechCorp
+//   Refresh Tab 1 → still Ravi ✅  |  Refresh Tab 2 → still TechCorp ✅
+//   NO cross-tab contamination ✅
 const Auth = {
   login(email, password) {
     const users = DB.get('users');
     const user = users.find(u => u.email === email && u.password === password);
-    if (user) { DB.set('current_user', user); return user; }
+    if (user) {
+      sessionStorage.setItem('2dbazar_current_user', JSON.stringify(user));
+      return user;
+    }
     return null;
   },
-  logout() { DB.set('current_user', null); },
-  current() { return DB.get('current_user'); },
+  logout() {
+    sessionStorage.removeItem('2dbazar_current_user');
+  },
+  current() {
+    let d = sessionStorage.getItem('2dbazar_current_user');
+    return d ? JSON.parse(d) : null;
+  },
   signup(data) {
     const users = DB.get('users');
     if (users.find(u => u.email === data.email)) return { error: 'Email already exists' };
     const newUser = { ...data, id: 'u' + Date.now(), avatar: data.name[0].toUpperCase() };
     users.push(newUser);
     DB.set('users', users);
-    DB.set('current_user', newUser);
+    sessionStorage.setItem('2dbazar_current_user', JSON.stringify(newUser));
     return newUser;
   },
   isAdmin() { const u = this.current(); return u && u.role === 'admin'; }
 };
+
+
 
 // ── UTILITY HELPERS ──────────────────────────────────────────
 function formatPrice(p) {
@@ -126,14 +269,283 @@ function toast(msg, type='success') {
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3000);
 }
-function openWA(phone='919999999999', msg='Hello! I found your listing on 2D Bazar.') {
+function getListingContact(item, type) {
+  if (!item) return '9121600133';
+  if (item.contact) return item.contact;
+  if (item.phone) return item.phone;
+  if (item.provider_phone) return item.provider_phone;
+  
+  const users = DB.get('users') || [];
+  const clean = (val) => (val || '').toLowerCase().trim();
+  
+  const findByName = (name) => {
+    if (!name) return null;
+    const n = clean(name);
+    let u = users.find(x => clean(x.name) === n);
+    if (u) return u;
+    u = users.find(x => clean(x.name).includes(n) || n.includes(clean(x.name)));
+    if (u) return u;
+    const first = n.split(/\s+/)[0];
+    if (first && first.length > 2) {
+      u = users.find(x => clean(x.name).split(/\s+/)[0] === first);
+      if (u) return u;
+    }
+    return null;
+  };
+
+  if (type === 'services') {
+    const u = findByName(item.provider);
+    if (u && u.phone) return u.phone;
+    const prov = users.find(x => x.role === 'service_provider');
+    if (prov && prov.phone) return prov.phone;
+    return '9876543210';
+  }
+  if (type === 'jobs') {
+    const c = clean(item.company);
+    let u = users.find(x => clean(x.company) === c || clean(x.name) === c);
+    if (u && u.phone) return u.phone;
+    u = users.find(x => clean(x.company).includes(c) || c.includes(clean(x.company)));
+    if (u && u.phone) return u.phone;
+    const emp = users.find(x => x.role === 'employer');
+    if (emp && emp.phone) return emp.phone;
+    return '9876543212';
+  }
+  if (type === 'products') {
+    const u = findByName(item.seller);
+    if (u && u.phone) return u.phone;
+    const sel = users.find(x => x.role === 'seller');
+    if (sel && sel.phone) return sel.phone;
+    return '9876543214';
+  }
+  if (type === 'properties') {
+    const u = findByName(item.owner);
+    if (u && u.phone) return u.phone;
+    const sel = users.find(x => x.role === 'seller');
+    if (sel && sel.phone) return sel.phone;
+    return '9876543214';
+  }
+  return '9121600133';
+}
+
+function formatWANumber(phone) {
+  if (!phone) return '919121600133';
+  let clean = phone.toString().replace(/\D/g, '');
+  if (clean.length === 10) {
+    return '91' + clean;
+  }
+  return clean;
+}
+
+function openWA(phone='919121600133', msg='Hello! I found your listing on 2DBazaar.') {
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+function waService(id) {
+  const s = DB.get('services').find(x=>x.id===id);
+  if(!s) return;
+  const msg = `Hello!\nI found your service on *2DBazaar*.\n\n*Service*: ${s.title}\n*Price*: ₹${s.price}/${s.unit}\n*Location*: ${s.location}\n\nCan you please confirm your availability?`;
+  const num = formatWANumber(getListingContact(s, 'services'));
+  openWA(num, msg);
+}
+function waProduct(id) {
+  const p = DB.get('products').find(x=>x.id===id);
+  if(!p) return;
+  const msg = `Hello!\nI am interested in your product listed on *2DBazaar*.\n\n*Product*: ${p.name}\n*Price*: ${formatPrice(p.price)}\n*Condition*: ${p.condition}\n*Location*: ${p.location}\n\nIs it still available?`;
+  const num = formatWANumber(getListingContact(p, 'products'));
+  openWA(num, msg);
+}
+function waJob(id) {
+  const j = DB.get('jobs').find(x=>x.id===id);
+  if(!j) return;
+  const msg = `Hello!\nI am inquiring about the job opening on *2DBazaar*.\n\n*Role*: ${j.title}\n*Company*: ${j.company}\n*Salary*: ${j.salary}\n*Location*: ${j.location}\n\nI would like to apply for this position. Please let me know the next steps.`;
+  const num = formatWANumber(getListingContact(j, 'jobs'));
+  openWA(num, msg);
+}
+function waProperty(id) {
+  const pr = DB.get('properties').find(x=>x.id===id);
+  if(!pr) return;
+
+  const user = Auth.current();
+  const lead = {
+    id: 'INQ-' + Date.now(),
+    propertyTitle: pr.title,
+    propertyId: pr.id,
+    userName: user ? user.name : 'Guest',
+    userPhone: user ? (user.phone || '') : '',
+    userMessage: '',
+    date: new Date().toLocaleDateString('en-IN'),
+    ts: Date.now(),
+    status: 'Properties Selected'
+  };
+
+  // Save to MySQL via PHP API (visible to admin across all devices)
+  fetch(LEADS_URL + '?action=add_lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(lead)
+  }).then(r => r.json())
+    .then(res => console.log('Lead saved to DB:', res))
+    .catch(e => console.error('Lead save error:', e));
+
+  // Also keep in localStorage as fallback
+  const inqs = DB.get('property_inquiries') || [];
+  inqs.unshift(lead);
+  localStorage.setItem('2dbazar_property_inquiries', JSON.stringify(inqs));
+
+  const msg = `Hello!\nI saw your property listing on *2DBazaar*.\n\n*Property*: ${pr.title}\n*Price*: ${formatPrice(pr.price)}\n*Area*: ${pr.area}\n*Location*: ${pr.location}\n\nI'd like to schedule a visit or get more details.`;
+  const num = formatWANumber(getListingContact(pr, 'properties'));
+  openWA(num, msg);
 }
 function guardAuth(requiredRole) {
   const user = Auth.current();
-  if (!user) { window.location.href = 'login.html'; return false; }
-  if (requiredRole && user.role !== requiredRole && user.role !== 'admin') {
-    toast('Access denied for your role', 'error'); return false;
+  if (!user) {
+    if (requiredRole === 'admin') {
+      window.location.href = 'admin-login.html';
+    } else {
+      window.location.href = 'login.html';
+    }
+    return false;
+  }
+  if (user.role === 'admin') return true;
+  if (requiredRole && user.role !== requiredRole) {
+    const dashMap = {
+      admin: 'admin',
+      service_provider: 'dashboard-provider',
+      service_receiver: 'dashboard-receiver',
+      employer: 'dashboard-employer',
+      job_seeker: 'dashboard-seeker',
+      seller: 'dashboard-seller',
+      buyer: 'dashboard-buyer'
+    };
+    const dest = dashMap[user.role] ? dashMap[user.role] + '.html' : '../index.html';
+    const currentPage = window.location.pathname.split('/').pop();
+    if (currentPage !== dest) {
+      window.location.href = dest;
+    }
+    return false;
   }
   return true;
+}
+
+function toggleMobileNav() {
+  const nl = document.getElementById('navLinks');
+  if (nl) {
+    nl.style.display = nl.style.display === 'flex' ? 'none' : 'flex';
+    nl.style.flexDirection = 'column';
+    nl.style.position = 'absolute';
+    nl.style.top = '68px'; 
+    nl.style.left = '0'; 
+    nl.style.right = '0';
+    nl.style.background = '#fff'; 
+    nl.style.padding = '10px'; 
+    nl.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)';
+    nl.style.zIndex = '999';
+  } else {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.toggle('open');
+    }
+  }
+}
+
+// Close sidebar on mobile when clicking outside or on a sidebar item
+document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('click', (e) => {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar && sidebar.classList.contains('open')) {
+      const menuBtn = document.querySelector('.nav-menu-btn');
+      if (!sidebar.contains(e.target) && (!menuBtn || !menuBtn.contains(e.target))) {
+        sidebar.classList.remove('open');
+      }
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.sidebar-item')) {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    }
+  });
+});
+
+// Unified global navigation render
+function renderNav() {
+  const user = Auth.current();
+  const el = document.getElementById('navActions');
+  if (!el) return;
+
+  const isPages = window.location.pathname.includes('/pages/');
+  const rootPrefix = isPages ? '../' : '';
+
+  if (user) {
+    const dashMap = {
+      admin: 'admin',
+      service_provider: 'dashboard-provider',
+      service_receiver: 'dashboard-receiver',
+      employer: 'dashboard-employer',
+      job_seeker: 'dashboard-seeker',
+      seller: 'dashboard-seller',
+      buyer: 'dashboard-buyer'
+    };
+    const dash = dashMap[user.role] || 'index';
+    
+    let dashLink;
+    if (dash === 'index') {
+      dashLink = isPages ? '../index.html' : 'index.html';
+    } else {
+      dashLink = isPages ? dash + '.html' : 'pages/' + dash + '.html';
+    }
+
+    const userNameFull = user.name || user.email || 'User';
+    const userNameFirst = userNameFull.split(' ')[0];
+    const userAvatarChar = user.avatar || userNameFull.charAt(0).toUpperCase();
+
+    el.innerHTML = `
+      <div id="userMenu" style="position:relative; display:inline-block;">
+        <button onclick="toggleUserDropdown(event)" class="btn btn-sm" id="userBtn" style="background:#f1f5f9; display:flex; align-items:center; gap:8px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; font-family:inherit; padding: 6px 12px;">
+          <span id="userAvatar" style="background:#25D366;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">
+            ${userAvatarChar}
+          </span>
+          <span id="userName" style="font-weight:500;color:#1e293b;font-family:inherit;">${userNameFirst}</span> ▾
+        </button>
+        <div id="userDropdown" class="hidden" style="position:absolute;right:0;top:44px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:180px;z-index:999;overflow:hidden;border:1px solid #e2e8f0;">
+          <a href="${dashLink}" style="display:block;padding:12px 16px;font-size:14px;font-weight:500;color:#334155;text-decoration:none;border-bottom:1px solid #f1f5f9;font-family:inherit;">⚡ Dashboard</a>
+          <a href="${dashLink}?tab=profile" style="display:block;padding:12px 16px;font-size:14px;font-weight:500;color:#334155;text-decoration:none;border-bottom:1px solid #f1f5f9;font-family:inherit;">👤 Profile</a>
+          <button onclick="Auth.logout(); window.location.href='${rootPrefix}index.html'; return false;" style="display:block;width:100%;text-align:left;padding:12px 16px;font-size:14px;font-weight:500;background:none;border:none;cursor:pointer;font-family:inherit;color:#ef4444;">🚪 Logout</button>
+        </div>
+      </div>
+    `;
+  } else {
+    const loginLink = isPages ? 'login.html' : 'pages/login.html';
+    const signupLink = isPages ? 'signup.html' : 'pages/signup.html';
+    el.innerHTML = `
+      <a href="${loginLink}" class="btn btn-outline btn-sm" id="loginBtn" style="margin-right:8px;font-family:inherit;">Login</a>
+      <a href="${signupLink}" class="btn btn-green btn-sm" id="signupBtn" ${!isPages ? 'onclick="showPostDisclaimer(event)"' : ''} style="font-family:inherit;">Post Free Ad</a>
+    `;
+  }
+}
+
+function toggleUserDropdown(event) {
+  if (event) event.stopPropagation();
+  const dd = document.getElementById('userDropdown');
+  if (dd) dd.classList.toggle('hidden');
+}
+
+window.renderNav = renderNav;
+window.toggleUserDropdown = toggleUserDropdown;
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const dd = document.getElementById('userDropdown');
+  if (dd && !e.target.closest('#userMenu')) {
+    dd.classList.add('hidden');
+  }
+});
+
+// Run renderNav once DOM is parsed
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', renderNav);
+} else {
+  renderNav();
 }

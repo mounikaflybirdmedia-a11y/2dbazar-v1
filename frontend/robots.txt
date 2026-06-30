@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /pages/services.html
+Allow: /pages/jobs.html
+Allow: /pages/marketplace.html
+Allow: /pages/properties.html
+Allow: /pages/privacy.html
+Allow: /pages/terms.html
+Allow: /pages/rules.html
+Disallow: /pages/admin-login.html
+Disallow: /pages/admin.html
+Disallow: /pages/admin_debug.html
+Disallow: /pages/dashboard-*.html
+Disallow: /pages/login.html
+Disallow: /pages/signup.html
+
+Sitemap: https://2dbazaar.com/sitemap.xml
