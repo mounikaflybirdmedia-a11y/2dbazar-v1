@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Seller Dashboard — 2D Bazaar</title>
+<title>Seller Dashboard — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div style="display:flex;align-items:center;gap:10px;">
       <span id="navUser" style="font-size:14px;color:#64748b;"></span>
       <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
@@ -73,12 +64,12 @@
         </div>
         <div class="form-row">
           <div class="form-group"><label>Location</label>
-            <select id="pLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+            <select id="pLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
           </div>
           <div class="form-group"><label>Warranty</label><input type="text" id="pWarranty" placeholder="e.g. 6 months left / None"/></div>
         </div>
         <div class="form-group"><label>Description</label><textarea id="pDesc" placeholder="Describe your product..."></textarea></div>
-        <div class="form-group"><label>Image URL</label><input type="url" id="pImg" placeholder="https://..."/> <input type="file" accept="image/*" style="margin-top:8px;font-size:12px;" onchange="const file=this.files[0];if(file){const reader=new FileReader();reader.onload=e=>document.getElementById(\'pImg\').value=e.target.result;reader.readAsDataURL(file);}"/></div>
+        <div class="form-group"><label>Image URL</label><input type="url" id="pImg" placeholder="https://..."/></div>
         <button class="btn btn-full" style="background:#7c3aed;color:#fff;" onclick="postListing()">Post Listing →</button>
       </div>
     </div>
@@ -102,14 +93,14 @@
         <div class="form-row">
           <div class="form-group"><label>Area</label><input type="text" id="ptArea" placeholder="e.g. 900 sqft"/></div>
           <div class="form-group"><label>Location</label>
-            <select id="ptLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+            <select id="ptLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Facing</label><select id="ptFacing"><option>East</option><option>West</option><option>North</option><option>South</option><option>North-East</option></select></div>
           <div class="form-group"><label>Parking</label><select id="ptParking"><option value="false">No</option><option value="true">Yes</option></select></div>
         </div>
-        <div class="form-group"><label>Image URL</label><input type="url" id="ptImg" placeholder="https://..."/> <input type="file" accept="image/*" style="margin-top:8px;font-size:12px;" onchange="const file=this.files[0];if(file){const reader=new FileReader();reader.onload=e=>document.getElementById(\'ptImg\').value=e.target.result;reader.readAsDataURL(file);}"/></div>
+        <div class="form-group"><label>Image URL</label><input type="url" id="ptImg" placeholder="https://..."/></div>
         <button class="btn btn-full" style="background:#b45309;color:#fff;" onclick="postProperty()">List Property →</button>
       </div>
     </div>
@@ -128,7 +119,7 @@
         <div class="form-group"><label>Full Name</label><input type="text" id="sName"/></div>
         <div class="form-row">
           <div class="form-group"><label>Phone</label><input type="text" id="sPhone"/></div>
-          <div class="form-group"><label>Location</label><select id="sLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
+          <div class="form-group"><label>Location</label><select id="sLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
         </div>
         <button class="btn" style="background:#7c3aed;color:#fff;" onclick="saveProfile()">Save</button>
       </div>
@@ -136,7 +127,7 @@
   </div>
 </div>
 
-<script src="../js/data.js"></script>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 function showTab(id,el){
   document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
@@ -181,7 +172,6 @@ function renderMyListings(){
       <div style="padding:14px;">
         <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${p.name}</div>
         <div style="color:#25D366;font-weight:700;margin-bottom:8px;">${formatPrice(p.price)}</div>
-        <div style="margin-bottom:8px;"><span class="chip ${p.approval_status==='Pending'?'chip-orange':'chip-green'}">${p.approval_status||'Approved'}</span></div>
         <button class="btn btn-sm btn-full" style="background:#ef4444;color:#fff;" onclick="removeListing('${p.id}')">🗑 Remove</button>
       </div>
     </div>`).join('');
@@ -198,8 +188,7 @@ function renderMyProps(){
       <div style="padding:14px;">
         <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${p.title}</div>
         <div style="color:#25D366;font-weight:700;margin-bottom:4px;">${formatPrice(p.price)}</div>
-        <div style="font-size:12px;color:#64748b;margin-bottom:8px;">${p.type} · ${p.area} · ${p.location}</div>
-        <span class="chip ${p.approval_status==='Pending'?'chip-orange':'chip-green'}">${p.approval_status||'Approved'}</span>
+        <div style="font-size:12px;color:#64748b;">${p.type} · ${p.area} · ${p.location}</div>
         <button class="btn btn-sm btn-full mt-2" style="background:#ef4444;color:#fff;" onclick="removeProp('${p.id}')">🗑 Remove</button>
       </div>
     </div>`).join('');
@@ -217,8 +206,7 @@ function postListing(){
     age:document.getElementById('pAge').value||'N/A',
     location:document.getElementById('pLoc').value,
     img:document.getElementById('pImg').value||'https://placehold.co/300x170/f1f5f9/64748b?text='+encodeURIComponent(name),
-    seller:user.name,contact:user.phone,
-    approval_status: 'Pending'
+    seller:user.name,contact:user.phone
   });
   DB.set('products',prods);
   document.getElementById('statProds').textContent=prods.filter(p=>p.seller===user.name).length;
@@ -239,8 +227,7 @@ function postProperty(){
     facing:document.getElementById('ptFacing').value,
     parking:document.getElementById('ptParking').value==='true',
     img:document.getElementById('ptImg').value||'https://placehold.co/400x200/fef3c7/92400e?text=Property',
-    owner:user.name,contact:user.phone,floors:1,
-    approval_status: 'Pending'
+    owner:user.name,contact:user.phone,floors:1
   });
   DB.set('properties',props);
   document.getElementById('statProps').textContent=props.filter(p=>p.owner===user.name).length;
@@ -261,20 +248,7 @@ function removeProp(id){
   document.getElementById('statProps').textContent=props.filter(p=>p.owner===user.name).length;
   toast('Property removed!');renderMyProps();
 }
-function saveProfile(){
-  const user = Auth.current();
-  if(!user) return;
-  const nameEl = document.getElementById('sName') || document.getElementById('bName') || document.getElementById('rName') || document.getElementById('cName');
-  const phoneEl = document.getElementById('sPhone') || document.getElementById('bPhone') || document.getElementById('rPhone') || document.getElementById('cPhone');
-  if(nameEl) user.name = nameEl.value;
-  if(phoneEl) user.phone = phoneEl.value;
-  const users = DB.get('users');
-  const idx = users.findIndex(u => u.id === user.id);
-  if(idx !== -1) { users[idx] = user; DB.set('users', users); }
-  sessionStorage.setItem('2dbazar_current_user', JSON.stringify(user));
-  if(typeof renderNav === 'function') renderNav();
-  toast('Profile saved!');
-}
+function saveProfile(){toast('Profile saved!');}
 init();
 </script>
 </body></html>

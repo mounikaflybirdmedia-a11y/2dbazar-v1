@@ -1,20 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-  if (window.location.pathname.startsWith('/pages/') && !window.location.pathname.endsWith('.html')) {
-    window.location.replace(window.location.pathname + '.html' + window.location.search);
-  }
-</script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>2DBazaar — Vijayanagaram's Complete Marketplace</title>
@@ -38,8 +24,18 @@
       <a href="pages/properties.html">Properties</a>
     </div>
     <div class="nav-actions" id="navActions">
-      <a href="pages/login.html" class="btn btn-outline btn-sm" id="loginBtn" style="margin-right:8px;font-family:inherit;">Login</a>
-      <a href="pages/signup.html" class="btn btn-green btn-sm" id="signupBtn" onclick="showPostDisclaimer(event)" style="font-family:inherit;">Post Free Ad</a>
+      <a href="pages/login.html" class="btn btn-outline btn-sm" id="loginBtn">Login</a>
+      <a href="pages/signup.html" class="btn btn-green btn-sm" id="signupBtn">Post Free Ad</a>
+      <div id="userMenu" class="hidden" style="position:relative;">
+        <button onclick="toggleUserMenu()" class="btn btn-sm" id="userBtn" style="background:#f1f5f9;gap:8px;">
+          <span id="userAvatar" style="background:#25D366;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;"></span>
+          <span id="userName"></span> ▾
+        </button>
+        <div id="userDropdown" class="hidden" style="position:absolute;right:0;top:44px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:180px;z-index:999;overflow:hidden;">
+          <a id="dashboardLink" href="#" style="display:block;padding:12px 16px;font-size:14px;font-weight:500;border-bottom:1px solid #f1f5f9;">⚡ My Dashboard</a>
+          <button onclick="logoutUser()" style="display:block;width:100%;text-align:left;padding:12px 16px;font-size:14px;font-weight:500;background:none;border:none;cursor:pointer;font-family:Poppins,sans-serif;color:#ef4444;">🚪 Logout</button>
+        </div>
+      </div>
     </div>
     <button class="nav-menu-btn" onclick="toggleMobileNav()">☰</button>
   </div>
@@ -209,20 +205,14 @@
         <a href="pages/dashboard-provider.html">Provider Dashboard</a>
         <a href="pages/dashboard-employer.html">Employer Dashboard</a>
         <a href="pages/dashboard-seller.html">Seller Dashboard</a>
-
-      </div>
-      <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="pages/privacy.html">Privacy Policy</a>
-        <a href="pages/terms.html">Terms & Conditions</a>
-        <a href="pages/rules.html">Rules & Regulations</a>
+        <a href="pages/admin.html">Admin Panel</a>
       </div>
       <div class="footer-col">
         <h4>Contact Us</h4>
-        <a href="tel:+919121600133" style="display:flex;align-items:center;gap:6px;">📞 +91 91216 00133</a>
-        <a href="mailto:2dbazaar.com@gmail.com" style="display:flex;align-items:flex-start;gap:6px;line-height:1.5;"><span style="flex-shrink:0;margin-top:1px;">&#128140;</span><span>2dbazaar.com@gmail.com</span></a>
-        <a href="https://wa.me/919121600133" style="display:flex;align-items:center;gap:6px;">💬 WhatsApp Us</a>
-        <p style="font-size:13px;margin-top:8px;display:flex;align-items:center;gap:6px;">📍 Vijayanagaram, AP</p>
+        <a href="tel:+919121600133">📞 +91 91216 00133</a>
+        <a href="mailto:2dbazaar.com@gmail.com">✉️ 2dbazaar.com@gmail.com</a>
+        <a href="https://wa.me/919121600133">💬 WhatsApp Us</a>
+        <p style="font-size:13px;margin-top:8px;">📍 Vijayanagaram, AP</p>
       </div>
     </div>
     <div class="footer-bottom">
@@ -238,89 +228,35 @@
 <style>
 .cat-chip{background:#f1f5f9;color:#1a1a2e;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:600;white-space:nowrap;transition:all .2s;display:inline-block;}
 .cat-chip:hover{background:#25D366;color:#fff;}
-/* ── DISCLAIMER MODAL (Homepage) ── */
-#homeDisclaimerModal {
-  display:none;
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0.6);
-  z-index:9999;
-  align-items:center;
-  justify-content:center;
-  padding:16px;
-  backdrop-filter:blur(4px);
-}
-#homeDisclaimerModal.show { display:flex; }
-.disclaimer-box2 {
-  background:#fff;
-  border-radius:16px;
-  max-width:480px;
-  width:100%;
-  padding:28px 24px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.25);
-  animation:fadeInUp2 0.3s ease;
-}
-@keyframes fadeInUp2 {
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
-}
-.disc2-heading { font-family:'Poppins',sans-serif; font-size:15px; font-weight:700; color:#1a1a2e; margin-bottom:14px; padding-bottom:10px; border-bottom:2px solid #25D366; }
-.disc2-body { background:#f8fafc; border-left:4px solid #f59e0b; border-radius:0 8px 8px 0; padding:16px; margin-bottom:18px; }
-.disc2-body p { font-size:14px; line-height:1.7; color:#1e293b; font-weight:600; margin:0; }
-.disc2-check { display:flex; align-items:flex-start; gap:10px; margin-bottom:18px; font-size:13px; color:#475569; cursor:pointer; }
-.disc2-check input { margin-top:2px; width:16px; height:16px; accent-color:#25D366; flex-shrink:0; }
-.disc2-actions { display:flex; gap:10px; }
-.disc2-actions button { flex:1; padding:12px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
-.disc2-agree { background:#25D366; color:#fff; }
-.disc2-agree:hover { background:#1ebe57; }
-.disc2-agree:disabled { background:#94a3b8; cursor:not-allowed; }
-.disc2-cancel { background:#f1f5f9; color:#64748b; }
-.disc2-cancel:hover { background:#e2e8f0; }
 </style>
 
-<script src="js/data.js?v=1781932627"></script>
-
-<!-- HOME DISCLAIMER MODAL -->
-<div id="homeDisclaimerModal">
-  <div class="disclaimer-box2">
-    <div style="text-align:center;font-size:36px;margin-bottom:10px;">⚠️</div>
-    <div class="disc2-body">
-      <p>"2DBazaar.com does not guarantee the authenticity, quality, safety, or legality of listed products or services. Users are advised to exercise caution and conduct their own verification before completing transactions."</p>
-    </div>
-    <label class="disc2-check" for="homeAgreeCheck">
-      <input type="checkbox" id="homeAgreeCheck" onchange="toggleHomeAgree()"/>
-      I have read and understood the above disclaimer and agree to proceed.
-    </label>
-    <div class="disc2-actions">
-      <button class="disc2-cancel" onclick="closeHomeDisclaimer()">← Cancel</button>
-      <button class="disc2-agree" id="homeAgreeBtn" disabled onclick="proceedToSignup()">✅ I Agree & Continue</button>
-    </div>
-  </div>
-</div>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
-// ── DISCLAIMER FUNCTIONS ───────────────────────────────────
-function showPostDisclaimer(e) {
-  if (Auth.current()) return; // already logged in, go directly
-  e.preventDefault();
-  document.getElementById('homeAgreeCheck').checked = false;
-  document.getElementById('homeAgreeBtn').disabled = true;
-  document.getElementById('homeDisclaimerModal').classList.add('show');
+// ── NAVBAR AUTH STATE ─────────────────────────────────────
+function initNavbar() {
+  const user = Auth.current();
+  if (user) {
+    document.getElementById('loginBtn').classList.add('hidden');
+    document.getElementById('signupBtn').classList.add('hidden');
+    document.getElementById('userMenu').classList.remove('hidden');
+    document.getElementById('userAvatar').textContent = user.avatar || user.name[0];
+    document.getElementById('userName').textContent = user.name.split(' ')[0];
+    const dashMap = {
+      admin:'admin.html', service_provider:'dashboard-provider.html',
+      service_receiver:'dashboard-receiver.html', employer:'dashboard-employer.html',
+      job_seeker:'dashboard-seeker.html', seller:'dashboard-seller.html',
+      buyer:'dashboard-buyer.html'
+    };
+    const link = dashMap[user.role] || 'index.html';
+    document.getElementById('dashboardLink').href = 'pages/' + link;
+  }
 }
-function closeHomeDisclaimer() {
-  document.getElementById('homeDisclaimerModal').classList.remove('show');
+function toggleUserMenu() {
+  document.getElementById('userDropdown').classList.toggle('hidden');
 }
-function toggleHomeAgree() {
-  document.getElementById('homeAgreeBtn').disabled = !document.getElementById('homeAgreeCheck').checked;
+function logoutUser() {
+  Auth.logout(); window.location.reload();
 }
-function proceedToSignup() {
-  closeHomeDisclaimer();
-  window.location.href = 'pages/signup.html';
-}
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('homeDisclaimerModal').addEventListener('click', function(e) {
-    if (e.target === this) closeHomeDisclaimer();
-  });
-});
-
 function toggleMobileNav() {
   const nl = document.getElementById('navLinks');
   nl.style.display = nl.style.display === 'flex' ? 'none' : 'flex';
@@ -337,10 +273,10 @@ document.getElementById('heroSearch').addEventListener('keypress', e => { if(e.k
 
 // ── RENDER FEATURED SERVICES ─────────────────────────────
 function renderFeaturedServices() {
-  const services = DB.get('services').filter(s => s.approval_status === 'Approved').slice(0,6);
+  const services = DB.get('services').slice(0,6);
   document.getElementById('featuredServices').innerHTML = services.map(s => `
     <div class="card" style="position:relative;">
-      <img class="card-img" src="${s.img}" alt="${s.title}" onerror="this.src='https://placehold.co/400x200/25D366/fff?text=${s.category}'"/>
+      <img class="card-img" src="${s.img}" alt="${s.title}" onerror="this.src='https://placehold.co/400x200/25D366/fff?text=${encodeURIComponent(s.category)}'"/>
       <span class="badge badge-orange badge-top">${s.badge}</span>
       <div class="card-body">
         <div class="card-title">${s.title}</div>
@@ -359,7 +295,7 @@ function renderFeaturedServices() {
 
 // ── RENDER FEATURED PRODUCTS ──────────────────────────────
 function renderFeaturedProducts() {
-  const products = DB.get('products').filter(p => p.approval_status === 'Approved').slice(0,8);
+  const products = DB.get('products').slice(0,8);
   document.getElementById('featuredProducts').innerHTML = products.map(p => `
     <div class="card" style="cursor:pointer;" onclick="window.location.href='pages/marketplace.html'">
       <img class="card-img" src="${p.img}" alt="${p.name}" style="height:170px;" onerror="this.src='https://placehold.co/300x170/f1f5f9/64748b?text=Image'"/>
@@ -377,7 +313,7 @@ function renderFeaturedProducts() {
 
 // ── RENDER FEATURED JOBS ──────────────────────────────────
 function renderFeaturedJobs() {
-  const jobs = DB.get('jobs').filter(j => j.approval_status === 'Approved').slice(0,4);
+  const jobs = DB.get('jobs').slice(0,4);
   document.getElementById('featuredJobs').innerHTML = jobs.map(j => `
     <div class="card" style="padding:20px;display:flex;flex-direction:column;gap:12px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
@@ -421,7 +357,7 @@ function renderTestimonials() {
     </div>`).join('');
 }
 
-renderNav();
+initNavbar();
 renderFeaturedServices();
 renderFeaturedProducts();
 renderFeaturedJobs();

@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Employer Dashboard — 2D Bazaar</title>
+<title>Employer Dashboard — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div style="display:flex;align-items:center;gap:10px;">
       <span id="navUser" style="font-size:14px;color:#64748b;"></span>
       <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
@@ -70,7 +61,7 @@
           <div class="form-group"><label>Openings</label><input type="number" id="jOpenings" value="1" min="1"/></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Location</label><select id="jLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select></div>
+          <div class="form-group"><label>Location</label><select id="jLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select></div>
           <div class="form-group"><label>Shift</label><select id="jShift"><option>Day</option><option>Morning</option><option>Night</option><option>Rotational</option></select></div>
         </div>
         <div class="form-group"><label>Perks (comma separated)</label><input type="text" id="jPerks" placeholder="PF, ESI, Bonus, Accommodation"/></div>
@@ -106,7 +97,7 @@
         <div class="form-group"><label>Contact Person</label><input type="text" id="cContact"/></div>
         <div class="form-row">
           <div class="form-group"><label>Phone</label><input type="text" id="cPhone"/></div>
-          <div class="form-group"><label>Location</label><select id="cLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
+          <div class="form-group"><label>Location</label><select id="cLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
         </div>
         <div class="form-group"><label>About Company</label><textarea id="cAbout" placeholder="Tell applicants about your company..."></textarea></div>
         <button class="btn btn-blue" onclick="saveCompanyProfile()">Save Profile</button>
@@ -115,7 +106,7 @@
   </div>
 </div>
 
-<script src="../js/data.js"></script>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 const STATUS_COLORS={Applied:'chip-blue',Shortlisted:'chip-green',Rejected:'chip-red','Interview Scheduled':'chip-orange',Hired:'chip-green','Not Interested':'chip-gray'};
 function showTab(id,el){
@@ -168,7 +159,6 @@ function renderMyJobs(){
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <span class="chip chip-blue">${j.type}</span>
-        <span class="chip ${j.approval_status==='Pending'?'chip-orange':'chip-green'}">${j.approval_status||'Approved'}</span>
         <button class="btn btn-outline btn-sm" onclick="deleteJob('${j.id}')">🗑 Remove</button>
       </div>
     </div>`).join('');
@@ -209,14 +199,12 @@ function postJob(){
     posted:'Just now',
     openings:parseInt(document.getElementById('jOpenings').value)||1,
     perks:document.getElementById('jPerks').value.split(',').map(s=>s.trim()).filter(Boolean),
-    skills:document.getElementById('jSkills').value.split(',').map(s=>s.trim()).filter(Boolean),
-    approval_status: 'Pending'
+    skills:document.getElementById('jSkills').value.split(',').map(s=>s.trim()).filter(Boolean)
   });
   DB.set('jobs',jobs);
   toast('Job posted successfully!');
   document.getElementById('jTitle').value='';
   document.getElementById('statJobs').textContent=jobs.length;
-  renderMyJobs();
 }
 function deleteJob(id){
   const jobs=DB.get('jobs').filter(j=>j.id!==id);

@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Buyer Dashboard — 2D Bazaar</title>
+<title>Buyer Dashboard — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div style="display:flex;align-items:center;gap:10px;">
       <span id="navUser" style="font-size:14px;color:#64748b;"></span>
       <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
@@ -87,14 +78,14 @@
         <div class="form-group"><label>Full Name</label><input type="text" id="bName"/></div>
         <div class="form-row">
           <div class="form-group"><label>Phone</label><input type="text" id="bPhone"/></div>
-          <div class="form-group"><label>Location</label><select id="bLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
+          <div class="form-group"><label>Location</label><select id="bLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
         </div>
         <button class="btn" style="background:#7c3aed;color:#fff;" onclick="toast('Profile saved!')">Save</button>
       </div>
     </div>
   </div>
 </div>
-<script src="../js/data.js"></script>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 function showTab(id,el){
   document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
@@ -128,7 +119,7 @@ function prodCard(p){
       <div style="font-size:13px;font-weight:600;margin-bottom:4px;">${p.name}</div>
       <div style="color:#25D366;font-weight:700;margin-bottom:8px;">${formatPrice(p.price)}</div>
       <div style="display:flex;gap:6px;">
-        <button class="btn btn-green btn-sm" style="flex:1;" onclick="openWA('${p.contact||'919999999999'}','Hi, I am interested in ${encodeURIComponent(p.name)}.')">💬</button>
+        <button class="btn btn-green btn-sm" style="flex:1;" onclick="openWA('919121600133','Hi, I am interested in ${encodeURIComponent(p.name)}.')">💬</button>
         <button class="btn btn-sm" style="flex:1;background:#ef4444;color:#fff;" onclick="removeWish('${p.id}')">🗑</button>
       </div>
     </div>
@@ -152,7 +143,7 @@ function renderPropWish(){
         <div style="color:#25D366;font-weight:700;margin-bottom:6px;">${formatPrice(p.price)}</div>
         <div style="font-size:12px;color:#64748b;">${p.type} · ${p.area} · ${p.location}</div>
         <div style="display:flex;gap:6px;margin-top:10px;">
-          <button class="btn btn-green btn-sm" style="flex:1;" onclick="openWA('${p.contact||'919999999999'}','Interested in your property: ${encodeURIComponent(p.title)}')">💬 Contact</button>
+          <button class="btn btn-green btn-sm" style="flex:1;" onclick="openWA('919121600133','Interested in your property: ${encodeURIComponent(p.title)}')">💬 Contact</button>
           <button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="removePropWish('${p.id}')">🗑</button>
         </div>
       </div>
@@ -173,7 +164,7 @@ function renderBrowse(){
         <div style="color:#25D366;font-weight:700;margin-bottom:8px;">${formatPrice(p.price)}</div>
         <div style="font-size:12px;color:#64748b;margin-bottom:8px;">📍 ${p.location} · ${p.condition}</div>
         <div style="display:flex;gap:6px;">
-          <button class="btn btn-green btn-sm" style="flex:1;" onclick="openWA('${p.contact||'919999999999'}','Interested in ${encodeURIComponent(p.name)} for ${formatPrice(p.price)}.')">💬</button>
+          <button class="btn btn-green btn-sm" style="flex:1;" onclick="openWA('919121600133','Interested in ${encodeURIComponent(p.name)} for ${formatPrice(p.price)}.')">💬</button>
           <button class="btn btn-sm btn-outline" onclick="addWish(${JSON.stringify(p).replace(/"/g,'&quot;')})" title="Add to Wishlist">${wl.includes(p.id)?'❤️':'🤍'}</button>
         </div>
       </div>

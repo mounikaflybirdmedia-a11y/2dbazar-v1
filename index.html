@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  if (window.location.pathname.startsWith('/pages/') && !window.location.pathname.endsWith('.html')) {
+    window.location.replace(window.location.pathname + '.html' + window.location.search);
+  }
+</script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>2D Bazar — Vijayanagaram's Complete Marketplace</title>
-<meta name="description" content="2D Bazar: Find trusted services, jobs, products and properties near you in Vijayanagaram."/>
+<title>2D Bazaar — Vijayanagaram's Complete Marketplace</title>
+<meta name="description" content="2D Bazaar: Find trusted services, jobs, products and properties near you in Vijayanagaram."/>
 <link rel="stylesheet" href="css/style.css"/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>"/>
 </head>
@@ -44,7 +49,7 @@
 <!-- HERO -->
 <section class="hero">
   <div class="container">
-    <h1>Welcome to <span>2D Bazar</span> 🛍️</h1>
+    <h1>Welcome to <span>2D Bazaar</span> 🛍️</h1>
     <p>Find Trusted Services, Top Jobs, Best Deals & Dream Properties Near You</p>
     <div class="hero-search">
       <input type="text" id="heroSearch" placeholder="Search services, products, jobs, properties..." />
@@ -170,7 +175,7 @@
 <section class="section section-gray">
   <div class="container">
     <div class="section-header">
-      <h2>⚙️ How <span>2D Bazar</span> Works</h2>
+      <h2>⚙️ How <span>2D Bazaar</span> Works</h2>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:30px;text-align:center;">
       <div><div style="font-size:48px;margin-bottom:12px;">📝</div><h3 style="margin-bottom:8px;">1. Post or Browse</h3><p style="color:#64748b;font-size:14px;">Create a free listing or browse thousands of services, jobs & products.</p></div>
@@ -216,7 +221,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 2D Bazar. All rights reserved.</p>
+      <p>© 2025 2D Bazaar. All rights reserved.</p>
       <p>Made with ❤️ in Vijayanagaram</p>
     </div>
   </div>
@@ -338,12 +343,12 @@ function renderFeaturedJobs() {
 
 // ── TESTIMONIALS ───────────────────────────────────────────
 const TESTIMONIALS = [
-  { name:'Suresh Varma', role:'Home Owner', rating:5, text:'Booked an electrician from 2D Bazar — he arrived within 2 hours. Excellent service and reasonable rates!', city:'Vijayanagaram' },
-  { name:'Priya Lakshmi', role:'Job Seeker', rating:5, text:'Got placed as a telecaller within a week of applying on 2D Bazar. Life-changing platform!', city:'Vizianagaram' },
+  { name:'Suresh Varma', role:'Home Owner', rating:5, text:'Booked an electrician from 2D Bazaar — he arrived within 2 hours. Excellent service and reasonable rates!', city:'Vijayanagaram' },
+  { name:'Priya Lakshmi', role:'Job Seeker', rating:5, text:'Got placed as a telecaller within a week of applying on 2D Bazaar. Life-changing platform!', city:'Vizianagaram' },
   { name:'Kiran Reddy', role:'Car Seller', rating:4, text:'Sold my car within 3 days of posting. Got a great deal with zero commission. Highly recommended!', city:'Bobbili' },
   { name:'Anitha Devi', role:'Property Buyer', rating:5, text:'Found my dream plot at the right price. The filters made it so easy to narrow down options.', city:'Salur' },
   { name:'Ramesh Babu', role:'Business Owner', rating:5, text:'Hired 3 staff members through the jobs portal. Quality candidates and fast results!', city:'Parvathipuram' },
-  { name:'Meena Kumari', role:'Service Provider', rating:4, text:'As a cleaning professional, 2D Bazar gets me consistent bookings every week. Great platform!', city:'Vijayanagaram' },
+  { name:'Meena Kumari', role:'Service Provider', rating:4, text:'As a cleaning professional, 2D Bazaar gets me consistent bookings every week. Great platform!', city:'Vijayanagaram' },
 ];
 function renderTestimonials() {
   document.getElementById('testimonials').innerHTML = TESTIMONIALS.map(t => `

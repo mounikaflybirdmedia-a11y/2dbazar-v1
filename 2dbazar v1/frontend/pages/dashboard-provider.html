@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Provider Dashboard — 2D Bazaar</title>
+<title>Provider Dashboard — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div style="display:flex;align-items:center;gap:10px;">
       <span id="navUser" style="font-size:14px;color:#64748b;"></span>
       <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
@@ -32,7 +23,6 @@
       <div class="sidebar-label">Main</div>
       <div class="sidebar-item active" onclick="showTab('overview',this)"><span class="icon">📊</span> Overview</div>
       <div class="sidebar-item" onclick="showTab('profile',this)"><span class="icon">👤</span> My Profile</div>
-      <div class="sidebar-item" onclick="showTab('myservices',this)"><span class="icon">🔧</span> My Services</div>
       <div class="sidebar-item" onclick="showTab('requests',this)"><span class="icon">📋</span> Service Requests</div>
       <div class="sidebar-item" onclick="showTab('applied',this)"><span class="icon">📝</span> My Applications</div>
       <div class="sidebar-label">Business</div>
@@ -70,7 +60,7 @@
         <div class="form-group"><label>Full Name</label><input type="text" id="pName"/></div>
         <div class="form-row">
           <div class="form-group"><label>Phone</label><input type="text" id="pPhone"/></div>
-          <div class="form-group"><label>Location</label><select id="pLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select></div>
+          <div class="form-group"><label>Location</label><select id="pLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Service Category</label>
@@ -81,40 +71,6 @@
         <div class="form-group"><label>Experience (Years)</label><input type="number" id="pExp" placeholder="e.g. 5"/></div>
         <div class="form-group"><label>Skills / Specialization</label><input type="text" id="pSkills" placeholder="e.g. Pipe repair, Tap fitting, Drainage"/></div>
         <button class="btn btn-green" onclick="saveProfile()">Save Profile</button>
-      </div>
-    </div>
-
-    <!-- MY SERVICES -->
-    <div id="tab-myservices" class="hidden">
-      <div class="dash-header">
-        <h1>My Services</h1>
-        <button class="btn btn-green btn-sm" onclick="document.getElementById('addServiceModal').style.display='flex'">+ Add New Service</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Title</th><th>Category</th><th>Price</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="myServicesTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ADD SERVICE MODAL -->
-    <div id="addServiceModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
-      <div class="card" style="padding:24px;width:90%;max-width:500px;">
-        <h2 style="margin-bottom:16px;">Add New Service</h2>
-        <div class="form-group"><label>Service Title</label><input type="text" id="newSvcTitle" placeholder="e.g. Expert Plumber"/></div>
-        <div class="form-row">
-          <div class="form-group"><label>Category</label><select id="newSvcCat"><option>Plumbing</option><option>Electrical</option><option>Carpentry</option><option>Cleaning</option><option>Painting</option><option>AC Repair</option><option>Appliance Repair</option></select></div>
-          <div class="form-group"><label>Location</label><input type="text" id="newSvcLoc" placeholder="e.g. Vijayanagaram"/></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Price (₹)</label><input type="number" id="newSvcPrice" placeholder="e.g. 300"/></div>
-          <div class="form-group"><label>Unit</label><select id="newSvcUnit"><option>hr</option><option>job</option><option>day</option><option>sqft</option></select></div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:20px;">
-          <button class="btn btn-green" style="flex:1;" onclick="addNewService()">Submit</button>
-          <button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('addServiceModal').style.display='none'">Cancel</button>
-        </div>
       </div>
     </div>
 
@@ -175,7 +131,7 @@
   </div>
 </div>
 
-<script src="../js/data.js"></script>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 const REVIEWS=[
   {name:'Suresh Varma',rating:5,text:'Excellent work! Fixed the pipe leak within 30 minutes.',date:'18 Apr 2025'},
@@ -188,7 +144,6 @@ function showTab(id,el){
   document.getElementById('tab-'+id).classList.remove('hidden');
   document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
   if(el) el.classList.add('active');
-  if(id==='myservices') renderMyServices();
   if(id==='requests') renderRequests();
   if(id==='reviews') renderReviews();
 }
@@ -204,21 +159,21 @@ function init(){
   document.getElementById('pPhone').value=user.phone||'';
   document.getElementById('pRate').value=user.rate||'';
   document.getElementById('pExp').value=user.experience||'';
-  const reqs=DB.get('service_requests').filter(r=>r.approval_status!=='Pending');
+  const reqs=DB.get('service_requests');
   document.getElementById('statReqs').textContent=reqs.length;
   document.getElementById('statAccepted').textContent=reqs.filter(r=>r.status==='Accepted').length;
   renderRecentRequests();
 }
 function renderRecentRequests(){
-  const reqs=DB.get('service_requests').filter(r=>r.approval_status!=='Pending').slice(0,3);
+  const reqs=DB.get('service_requests').slice(0,3);
   document.getElementById('recentRequests').innerHTML=reqs.length?reqs.map(r=>`
     <div class="card" style="padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
       <div><div style="font-weight:600;">${r.service} Request</div><div style="font-size:13px;color:#64748b;">${r.desc.substring(0,60)}...</div><div style="font-size:12px;color:#64748b;margin-top:4px;">📍 ${r.location} · Budget: ₹${r.budget}</div></div>
-      <div style="display:flex;gap:8px;"><button class="btn btn-green btn-sm" onclick="acceptReq('${r.id}')">Accept</button><button class="btn btn-outline btn-sm" onclick="openWA('919999999999','I can help with your ${encodeURIComponent(r.service)} request.')">WhatsApp</button></div>
+      <div style="display:flex;gap:8px;"><button class="btn btn-green btn-sm" onclick="acceptReq('${r.id}')">Accept</button><button class="btn btn-outline btn-sm" onclick="openWA('919121600133','I can help with your ${encodeURIComponent(r.service)} request.')">WhatsApp</button></div>
     </div>`).join(''):'<div class="empty-state"><div class="empty-icon">📋</div><h3>No requests yet</h3><p>Requests from customers will appear here</p></div>';
 }
 function renderRequests(){
-  const reqs=DB.get('service_requests').filter(r=>r.approval_status!=='Pending');
+  const reqs=DB.get('service_requests');
   document.getElementById('reqBadge').textContent=reqs.length+' total';
   document.getElementById('requestsList').innerHTML=reqs.length?reqs.map(r=>`
     <div class="card" style="padding:20px;margin-bottom:12px;">
@@ -231,7 +186,7 @@ function renderRequests(){
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-green btn-sm" onclick="acceptReq('${r.id}')">✅ Accept</button>
-        <button class="btn btn-outline btn-sm" onclick="openWA('919999999999','I can help with your ${encodeURIComponent(r.service)} request on 2D Bazaar.')">💬 Chat</button>
+        <button class="btn btn-outline btn-sm" onclick="openWA('919121600133','I can help with your ${encodeURIComponent(r.service)} request on 2DBazaar.')">💬 Chat</button>
       </div>
     </div>`).join(''):'<div class="empty-state"><div class="empty-icon">📋</div><h3>No requests yet</h3></div>';
 }
@@ -243,19 +198,16 @@ function acceptReq(id){
   document.getElementById('statAccepted').textContent=reqs.filter(r=>r.status==='Accepted').length;
 }
 function saveProfile(){
-  const user = Auth.current();
+  const user=Auth.current();
   if(!user) return;
-  const nameEl = document.getElementById('sName') || document.getElementById('bName') || document.getElementById('rName') || document.getElementById('cName');
-  const phoneEl = document.getElementById('sPhone') || document.getElementById('bPhone') || document.getElementById('rPhone') || document.getElementById('cPhone');
-  if(nameEl) user.name = nameEl.value;
-  if(phoneEl) user.phone = phoneEl.value;
-  const users = DB.get('users');
-  const idx = users.findIndex(u => u.id === user.id);
-  if(idx !== -1) { users[idx] = user; DB.set('users', users); }
-  sessionStorage.setItem('2dbazar_current_user', JSON.stringify(user));
-  if(typeof renderNav === 'function') renderNav();
-  toast('Profile saved!');
-}
+  user.name=document.getElementById('pName').value;
+  user.phone=document.getElementById('pPhone').value;
+  user.category=document.getElementById('pCat').value;
+  user.rate=document.getElementById('pRate').value;
+  user.experience=document.getElementById('pExp').value;
+  const users=DB.get('users');
+  const idx=users.findIndex(u=>u.id===user.id);
+  if(idx>-1){users[idx]=user;DB.set('users',users);}
   DB.set('current_user',user);
   toast('Profile saved!');
 }
@@ -268,57 +220,6 @@ function renderReviews(){
       <p>"${r.text}"</p>
       <div class="reviewer"><div class="reviewer-avatar">${r.name[0]}</div><div><div class="reviewer-name">${r.name}</div><div class="reviewer-role">${r.date}</div></div></div>
     </div>`).join('');
-}
-function renderMyServices(){
-  const user = Auth.current();
-  if(!user) return;
-  const list = DB.get('services').filter(s => s.provider === user.name || s.userId === user.id);
-  document.getElementById('myServicesTable').innerHTML = list.length ? list.map(s => `<tr>
-    <td style="font-weight:600;font-size:13px;">${s.title}</td>
-    <td>${s.category}</td>
-    <td style="color:#25D366;font-weight:700;">₹${s.price}/${s.unit}</td>
-    <td style="font-size:13px;">${s.location}</td>
-    <td><span class="chip ${s.approval_status==='Pending'?'chip-orange':'chip-green'}">${s.approval_status||'Approved'}</span></td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteMyService('${s.id}')">Delete</button></td>
-  </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;">No services added yet.</td></tr>';
-}
-function addNewService(){
-  const user = Auth.current();
-  if(!user) return;
-  const title = document.getElementById('newSvcTitle').value;
-  const cat = document.getElementById('newSvcCat').value;
-  const loc = document.getElementById('newSvcLoc').value;
-  const price = document.getElementById('newSvcPrice').value;
-  const unit = document.getElementById('newSvcUnit').value;
-  if(!title || !price || !loc) return toast('Please fill all fields', 'error');
-  
-  const services = DB.get('services');
-  services.unshift({
-    id: 's' + Date.now(),
-    title: title,
-    category: cat,
-    location: loc,
-    price: price,
-    unit: unit,
-    provider: user.name,
-    userId: user.id,
-    approval_status: 'Pending',
-    status: 'active',
-    rating: 0,
-    reviews: 0,
-    img: '/assets/images/plumbing.png'
-  });
-  DB.set('services', services);
-  document.getElementById('addServiceModal').style.display = 'none';
-  toast('Service submitted for approval!');
-  renderMyServices();
-}
-function deleteMyService(id){
-  if(!confirm('Delete this service?')) return;
-  const list = DB.get('services').filter(s => s.id !== id);
-  DB.set('services', list);
-  toast('Service deleted!');
-  renderMyServices();
 }
 init();
 </script>

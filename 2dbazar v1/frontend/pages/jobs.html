@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Jobs — 2D Bazaar</title>
+<title>Jobs — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div class="nav-links">
       <a href="../index.html">Home</a><a href="services.html">Services</a>
       <a href="jobs.html" class="active">Jobs</a><a href="marketplace.html">Marketplace</a><a href="properties.html">Properties</a>
@@ -42,7 +33,7 @@
     </select>
     <select id="jobLoc">
       <option value="">All Locations</option>
-      <option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
+      <option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
     </select>
     <select id="jobType"><option value="">Any Type</option><option>Full Time</option><option>Part Time</option><option>Contract</option></select>
     <button class="btn btn-blue btn-sm" onclick="applyJobFilters()">Search</button>
@@ -71,7 +62,7 @@
         <select id="jCat"><option>Telecaller</option><option>IT/Developer</option><option>Admin</option><option>Housekeeping</option><option>Nursing</option><option>Manager</option><option>Chef</option><option>Security</option></select>
       </div>
       <div class="form-group"><label>Location</label>
-        <select id="jLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+        <select id="jLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
       </div>
     </div>
     <div class="form-row">
@@ -87,8 +78,8 @@
   </div>
 </div>
 
-<a href="https://wa.me/919999999999" class="wa-float">💬</a>
-<script src="../js/data.js"></script>
+<a href="https://wa.me/919121600133" class="wa-float">💬</a>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 let jobTab = '';
 function renderNav() {
@@ -129,12 +120,12 @@ function renderJobs(list) {
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-blue btn-sm" onclick="applyJob('${j.id}','${j.title}')">Apply Now</button>
-        <button class="btn btn-outline btn-sm" onclick="openWA('919999999999','Hi, I am interested in the ${encodeURIComponent(j.title)} position at ${encodeURIComponent(j.company)}.')">💬 WhatsApp</button>
+        <button class="btn btn-outline btn-sm" onclick="waJob('${j.id}')">💬 WhatsApp</button>
       </div>
     </div>`).join('');
 }
 function getJobList() {
-  let list = DB.get('jobs').filter(j => j.approval_status !== 'Pending');
+  let list = DB.get('jobs');
   const q = document.getElementById('jobSearch').value.toLowerCase();
   const cat = document.getElementById('jobCat').value;
   const loc = document.getElementById('jobLoc').value;
@@ -182,8 +173,7 @@ function submitJob() {
     category:document.getElementById('jCat').value,
     posted:'Just now', openings:parseInt(document.getElementById('jOpenings').value)||1,
     perks:document.getElementById('jPerks').value.split(',').map(s=>s.trim()).filter(Boolean),
-    skills:document.getElementById('jSkills').value.split(',').map(s=>s.trim()).filter(Boolean),
-    approval_status: 'Pending'
+    skills:document.getElementById('jSkills').value.split(',').map(s=>s.trim()).filter(Boolean)
   });
   DB.set('jobs',jobs);
   toast('Job posted successfully!');

@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Admin Dashboard — 2D Bazaar</title>
+<title>Admin Dashboard — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div style="display:flex;align-items:center;gap:10px;">
       <span style="font-size:13px;background:#ef4444;color:#fff;padding:4px 10px;border-radius:6px;font-weight:600;">ADMIN</span>
       <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
@@ -36,7 +27,6 @@
       <div class="sidebar-item" onclick="showTab('jobs',this)"><span class="icon">💼</span> Jobs</div>
       <div class="sidebar-item" onclick="showTab('products',this)"><span class="icon">🛒</span> Products</div>
       <div class="sidebar-item" onclick="showTab('properties',this)"><span class="icon">🏠</span> Properties</div>
-      <div class="sidebar-item" onclick="showTab('approvals',this)"><span class="icon">⏳</span> Approvals</div>
       <div class="sidebar-label">Reports</div>
       <div class="sidebar-item" onclick="showTab('analytics',this)"><span class="icon">📈</span> Analytics</div>
       <div class="sidebar-item" onclick="showTab('settings',this)"><span class="icon">⚙️</span> Settings</div>
@@ -50,7 +40,6 @@
         <span style="font-size:13px;color:#64748b;">Last updated: <span id="lastUpdated"></span></span>
       </div>
       <div class="stats-row">
-        <div class="stat-card" onclick="showTab('approvals', document.querySelector('[onclick*=\\\'approvals\\\']'))" style="cursor:pointer;"><div class="stat-icon" style="background:#fef3c7;color:#f59e0b;">⏳</div><div class="stat-info"><h3 id="pendingApprovals">0</h3><p>Pending Approvals</p></div></div>
         <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-info"><h3 id="totalUsers">0</h3><p>Total Users</p></div></div>
         <div class="stat-card"><div class="stat-icon">🔧</div><div class="stat-info"><h3 id="totalServices">0</h3><p>Services Listed</p></div></div>
         <div class="stat-card"><div class="stat-icon">💼</div><div class="stat-info"><h3 id="totalJobs">0</h3><p>Active Jobs</p></div></div>
@@ -141,17 +130,6 @@
       </div>
     </div>
 
-    <!-- APPROVALS -->
-    <div id="tab-approvals" class="hidden">
-      <div class="dash-header"><h1>Pending Approvals</h1></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Type</th><th>Title/Name</th><th>Submitted By</th><th>Actions</th></tr></thead>
-          <tbody id="approvalsTable"></tbody>
-        </table>
-      </div>
-    </div>
-
     <!-- ANALYTICS -->
     <div id="tab-analytics" class="hidden">
       <div class="dash-header"><h1>Platform Analytics</h1></div>
@@ -171,10 +149,10 @@
     <div id="tab-settings" class="hidden">
       <div class="dash-header"><h1>Platform Settings</h1></div>
       <div class="card" style="padding:28px;max-width:560px;">
-        <div class="form-group"><label>Platform Name</label><input type="text" value="2D Bazaar"/></div>
-        <div class="form-group"><label>Support WhatsApp</label><input type="text" value="+91 9999999999"/></div>
-        <div class="form-group"><label>Support Email</label><input type="email" value="info@2dbazar.com"/></div>
-        <div class="form-group"><label>Default Location</label><select><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option></select></div>
+        <div class="form-group"><label>Platform Name</label><input type="text" value="2DBazaar"/></div>
+        <div class="form-group"><label>Support WhatsApp</label><input type="text" value="+91 9121600133"/></div>
+        <div class="form-group"><label>Support Email</label><input type="email" value="2dbazaar.com@gmail.com"/></div>
+        <div class="form-group"><label>Default Location</label><select><option>Vijayanagaram</option><option>Vizianagaram</option></select></div>
         <div class="form-group"><label>Listings Per Page</label><select><option>12</option><option>24</option><option>48</option></select></div>
         <div class="form-group">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
@@ -193,10 +171,50 @@
   </div>
 </div>
 
-<script src="../js/data.js"></script>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 const ROLE_LABELS={admin:'Admin',service_provider:'Provider',service_receiver:'Customer',employer:'Employer',job_seeker:'Job Seeker',seller:'Seller',buyer:'Buyer'};
 const ROLE_CHIPS={admin:'chip-red',service_provider:'chip-green',service_receiver:'chip-blue',employer:'chip-orange',job_seeker:'chip-blue',seller:'chip-green',buyer:'chip-gray'};
+
+function openAdminModal(type, item = {}) {
+  let html = '';
+  ADM_FIELDS[type].forEach(f => {
+    if (f === 'img') {
+      html += `<div class="form-group">
+        <label>Image URL or Upload</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input type="text" id="am_img_url" placeholder="Paste image URL here..." value="${item.img||''}" style="flex:1;" oninput="document.getElementById('am_img_preview').src=this.value"/>
+          <label class="btn btn-outline btn-sm" style="cursor:pointer;margin:0;display:flex;align-items:center;">
+            📂 Upload
+            <input type="file" accept="image/*" style="display:none;" onchange="
+              const file = this.files[0];
+              if(file){
+                const reader = new FileReader();
+                reader.onload = e => {
+                  document.getElementById('am_img_url').value = e.target.result;
+                  document.getElementById('am_img_preview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+              }
+            "/>
+          </label>
+        </div>
+        <img id="am_img_preview" src="${item.img||'https://placehold.co/400x200?text=No+Image'}" style="width:100%;height:150px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;"/>
+      </div>`;
+    } else {
+      html += `<div class="form-group"><label style="text-transform:capitalize;">${f}</label><input type="text" id="am_${f}" value="${item[f]||''}"/></div>`;
+    }
+  });
+  document.getElementById('amBody').innerHTML = html;
+}
+
+function saveAdminModal(type, item) {
+  ADM_FIELDS[type].forEach(f => {
+    let val = f === 'img' ? document.getElementById('am_img_url').value : document.getElementById('am_' + f).value;
+    if (f === 'price' || f === 'openings') val = Number(val) || val;
+    item[f] = val;
+  });
+}
 
 function showTab(id,el){
   document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
@@ -208,13 +226,20 @@ function showTab(id,el){
   if(id==='jobs') renderJobsTable();
   if(id==='products') renderProductsTable();
   if(id==='properties') renderPropsTable();
-  if(id==='approvals') renderApprovals();
   if(id==='analytics') renderAnalytics();
 }
 
+const ADM_FIELDS = {
+  users: ['name', 'email', 'phone', 'role', 'location'],
+  services: ['title', 'category', 'price', 'unit', 'location', 'status', 'img'],
+  jobs: ['title', 'company', 'salary', 'location', 'openings'],
+  products: ['name', 'category', 'price', 'condition', 'seller', 'img'],
+  properties: ['title', 'type', 'price', 'location', 'owner', 'img']
+};
+
 function init(){
   const user=Auth.current();
-  if(!user||user.role!=='admin'){window.location.href='admin-login.html';return;}
+  if(!user||user.role!=='admin'){window.location.href='login.html';return;}
   document.getElementById('lastUpdated').textContent=new Date().toLocaleString('en-IN');
   const users=DB.get('users');
   const services=DB.get('services');
@@ -222,12 +247,6 @@ function init(){
   const products=DB.get('products');
   const properties=DB.get('properties');
   const reqs=DB.get('service_requests');
-  let pendingCount = 0;
-  ['services','jobs','products','properties'].forEach(key => {
-    pendingCount += DB.get(key).filter(item => item.approval_status === 'Pending').length;
-  });
-  pendingCount += DB.get('service_requests').filter(item => item.status === 'Open' || item.status === 'Pending' || item.approval_status === 'Pending').length;
-  document.getElementById('pendingApprovals').textContent=pendingCount;
   document.getElementById('totalUsers').textContent=users.length;
   document.getElementById('totalServices').textContent=services.length;
   document.getElementById('totalJobs').textContent=jobs.length;
@@ -289,7 +308,7 @@ function filterUsers(){
     <td style="font-size:13px;">${u.email}</td>
     <td><span class="chip ${ROLE_CHIPS[u.role]||'chip-gray'}">${ROLE_LABELS[u.role]||u.role}</span></td>
     <td style="font-size:13px;">${u.location||'—'}</td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editUser('${u.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteUser('${u.id}')">Remove</button></td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteUser('${u.id}')">Remove</button></td>
   </tr>`).join('');
 }
 function deleteUser(id){
@@ -299,42 +318,6 @@ function deleteUser(id){
   document.getElementById('totalUsers').textContent=users.length;
 }
 
-
-function editUser(id) {
-  const users = DB.get('users');
-  const u = users.find(x => x.id === id);
-  if(!u) return;
-  const n = prompt('Edit User Name:', u.name);
-  if(n) { u.name = n; DB.set('users', users); toast('User updated!'); renderUsers(); }
-}
-function editService(id) {
-  const list = DB.get('services');
-  const item = list.find(x => x.id === id);
-  if(!item) return;
-  const n = prompt('Edit Service Title:', item.title);
-  if(n) { item.title = n; DB.set('services', list); toast('Service updated!'); renderServicesTable(); }
-}
-function editJob(id) {
-  const list = DB.get('jobs');
-  const item = list.find(x => x.id === id);
-  if(!item) return;
-  const n = prompt('Edit Job Title:', item.title);
-  if(n) { item.title = n; DB.set('jobs', list); toast('Job updated!'); renderJobsTable(); }
-}
-function editProduct(id) {
-  const list = DB.get('products');
-  const item = list.find(x => x.id === id);
-  if(!item) return;
-  const n = prompt('Edit Product Name:', item.name);
-  if(n) { item.name = n; DB.set('products', list); toast('Product updated!'); renderProductsTable(); }
-}
-function editProp(id) {
-  const list = DB.get('properties');
-  const item = list.find(x => x.id === id);
-  if(!item) return;
-  const n = prompt('Edit Property Title:', item.title);
-  if(n) { item.title = n; DB.set('properties', list); toast('Property updated!'); renderPropsTable(); }
-}
 function renderServicesTable(){
   const list=DB.get('services');
   document.getElementById('servicesTable').innerHTML=list.map(s=>`<tr>
@@ -343,7 +326,7 @@ function renderServicesTable(){
     <td style="color:#25D366;font-weight:700;">₹${s.price}/${s.unit}</td>
     <td style="font-size:13px;">${s.location}</td>
     <td><span class="chip chip-green">${s.status||'Active'}</span></td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editService('${s.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteService('${s.id}')">Remove</button></td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteService('${s.id}')">Remove</button></td>
   </tr>`).join('');
 }
 function deleteService(id){
@@ -359,7 +342,7 @@ function renderJobsTable(){
     <td style="font-size:13px;">${j.salary}</td>
     <td style="font-size:13px;">${j.location}</td>
     <td style="text-align:center;">${j.openings}</td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editJob('${j.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteJob('${j.id}')">Remove</button></td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteJob('${j.id}')">Remove</button></td>
   </tr>`).join('');
 }
 function deleteJob(id){
@@ -375,7 +358,7 @@ function renderProductsTable(){
     <td style="color:#25D366;font-weight:700;">${formatPrice(p.price)}</td>
     <td style="font-size:13px;">${p.seller}</td>
     <td><span class="chip ${p.condition==='New'?'chip-green':'chip-orange'}">${p.condition}</span></td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editProduct('${p.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProduct('${p.id}')">Remove</button></td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProduct('${p.id}')">Remove</button></td>
   </tr>`).join('');
 }
 function deleteProduct(id){
@@ -391,79 +374,12 @@ function renderPropsTable(){
     <td style="color:#25D366;font-weight:700;">${formatPrice(p.price)}</td>
     <td style="font-size:13px;">${p.location}</td>
     <td style="font-size:13px;">${p.owner}</td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editProp('${p.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProp('${p.id}')">Remove</button></td>
+    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProp('${p.id}')">Remove</button></td>
   </tr>`).join('');
 }
 function deleteProp(id){
   const list=DB.get('properties').filter(p=>p.id!==id);DB.set('properties',list);
   toast('Property removed!');renderPropsTable();document.getElementById('totalProperties').textContent=list.length;
-}
-
-function renderApprovals(){
-  let html = '';
-  ['services','jobs','products','properties','service_requests'].forEach(type => {
-    const items = DB.get(type).filter(item => {
-      if (type === 'service_requests') return item.status === 'Open' || item.status === 'Pending' || item.approval_status === 'Pending';
-      return item.approval_status === 'Pending';
-    });
-    items.forEach(item => {
-      const title = item.title || item.name || item.service || item.desc || 'Request';
-      const submittedBy = item.provider || item.company || item.seller || item.owner || item.userId || 'User';
-      const label = type === 'service_requests' ? 'Request' : type.replace('_', ' ');
-      html += `<tr>
-        <td><span class="chip chip-orange" style="text-transform:capitalize;">${label}</span></td>
-        <td style="font-weight:600;font-size:13px;">${title}</td>
-        <td style="font-size:13px;">${submittedBy}</td>
-        <td>
-          <button class="btn btn-sm" style="background:#3b82f6;color:#fff;" onclick="editApprovalItem('${type}', '${item.id}')">Edit</button>
-          <button class="btn btn-sm btn-green" onclick="approveItem('${type}', '${item.id}')">Approve</button>
-          <button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="rejectItem('${type}', '${item.id}')">Reject</button>
-        </td>
-      </tr>`;
-    });
-  });
-  if(!html) html = '<tr><td colspan="4" style="text-align:center;padding:20px;">No pending approvals</td></tr>';
-  document.getElementById('approvalsTable').innerHTML = html;
-}
-function approveItem(type, id){
-  let list = DB.get(type);
-  let item = list.find(i => i.id === id);
-  if(item){
-    item.approval_status = 'Approved';
-    DB.set(type, list);
-    toast('Item Approved!');
-    renderApprovals();
-    init(); // Refresh count
-  }
-}
-function rejectItem(type, id){
-  if(!confirm('Reject and delete this item?')) return;
-  let list = DB.get(type).filter(i => i.id !== id);
-  DB.set(type, list);
-  toast('Item Rejected & Removed!');
-  renderApprovals();
-  init(); // Refresh count
-}
-function editApprovalItem(type, id) {
-  if (type === 'users') editUser(id);
-  else if (type === 'services') editService(id);
-  else if (type === 'jobs') editJob(id);
-  else if (type === 'products') editProduct(id);
-  else if (type === 'properties') editProp(id);
-  else if (type === 'service_requests') {
-    const list = DB.get('service_requests');
-    const item = list.find(x => x.id === id);
-    if(!item) return;
-    const n = prompt('Edit Request Description/Title:', item.desc || item.service || item.title);
-    if(n) { 
-        if(item.desc) item.desc = n; 
-        else if(item.service) item.service = n; 
-        else item.title = n;
-        DB.set('service_requests', list); 
-        toast('Request updated!'); 
-    }
-  }
-  renderApprovals();
 }
 
 function renderAnalytics(){

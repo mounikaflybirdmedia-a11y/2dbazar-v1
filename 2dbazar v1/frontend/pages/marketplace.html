@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Marketplace — 2D Bazaar</title>
+<title>Marketplace — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div class="nav-links">
       <a href="../index.html">Home</a><a href="services.html">Services</a>
       <a href="jobs.html">Jobs</a><a href="marketplace.html" class="active">Marketplace</a><a href="properties.html">Properties</a>
@@ -42,7 +33,7 @@
     </select>
     <select id="prodLoc">
       <option value="">All Locations</option>
-      <option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
+      <option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
     </select>
     <select id="prodCond"><option value="">Any Condition</option><option>New</option><option>Used</option></select>
     <select id="prodPrice">
@@ -99,17 +90,17 @@
     <div class="form-row">
       <div class="form-group"><label>Condition</label><select id="sCond"><option>Used</option><option>New</option></select></div>
       <div class="form-group"><label>Location</label>
-        <select id="sLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+        <select id="sLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
       </div>
     </div>
     <div class="form-group"><label>Description</label><textarea id="sDesc" placeholder="Describe your product..."></textarea></div>
-    <div class="form-group"><label>Image URL (optional)</label><input type="url" id="sImg" placeholder="https://..."/> <input type="file" accept="image/*" style="margin-top:8px;font-size:12px;" onchange="const file=this.files[0];if(file){const reader=new FileReader();reader.onload=e=>document.getElementById(\'sImg\').value=e.target.result;reader.readAsDataURL(file);}"/></div>
+    <div class="form-group"><label>Image URL (optional)</label><input type="url" id="sImg" placeholder="https://..."/></div>
     <button class="btn btn-full" style="background:#7c3aed;color:#fff;" onclick="submitListing()">Post Listing</button>
   </div>
 </div>
 
-<a href="https://wa.me/919999999999" class="wa-float">💬</a>
-<script src="../js/data.js"></script>
+<a href="https://wa.me/919121600133" class="wa-float">💬</a>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 let prodTab='', currentProduct=null;
 function renderNav() {
@@ -142,7 +133,7 @@ function renderProducts(list) {
     </div>`).join('');
 }
 function getProducts(){
-  let list=DB.get('products').filter(p=>p.approval_status!=='Pending');
+  let list=DB.get('products');
   const q=document.getElementById('prodSearch').value.toLowerCase();
   const cat=document.getElementById('prodCat').value;
   const loc=document.getElementById('prodLoc').value;
@@ -171,7 +162,7 @@ function openDetail(p){
   document.getElementById('detailPrice').textContent=formatPrice(p.price);
   document.getElementById('detailCond').innerHTML=`<span class="chip ${p.condition==='New'?'chip-green':'chip-orange'}">${p.condition}</span>`;
   document.getElementById('detailMeta').innerHTML=`<span>📍 ${p.location}</span><span>📦 ${p.category}</span><span>🕒 ${p.age||'N/A'} old</span><span>👤 ${p.seller}</span>`;
-  document.getElementById('detailWA').onclick=()=>openWA(p.contact||'919999999999',`Hi, I'm interested in your ${p.name} listed on 2D Bazaar for ${formatPrice(p.price)}.`);
+  document.getElementById('detailWA').onclick=()=>waProduct(p.id);
   document.getElementById('detailWish').onclick=()=>addWishlist(p);
   document.getElementById('detailModal').classList.remove('hidden');
 }
@@ -197,8 +188,7 @@ function submitListing(){
     condition:document.getElementById('sCond').value,
     location:document.getElementById('sLoc').value,
     img:document.getElementById('sImg').value||'https://placehold.co/300x170/f1f5f9/64748b?text='+encodeURIComponent(name),
-    seller:user.name,contact:user.phone,age:'New',
-    approval_status: 'Pending'
+    seller:user.name,contact:user.phone,age:'New'
   };
   prods.unshift(p);DB.set('products',prods);
   toast('Listing posted!');closeSellModal();renderProducts(getProducts());

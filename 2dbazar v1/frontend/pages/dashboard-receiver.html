@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Service Receiver Dashboard — 2D Bazaar</title>
+<title>Service Receiver Dashboard — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div style="display:flex;align-items:center;gap:10px;">
       <span id="navUser" style="font-size:14px;color:#64748b;"></span>
       <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
@@ -68,7 +59,7 @@
         </div>
         <div class="form-row">
           <div class="form-group"><label>Location</label>
-            <select id="reqLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+            <select id="reqLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
           </div>
           <div class="form-group"><label>Preferred Date</label><input type="date" id="reqDate"/></div>
         </div>
@@ -103,14 +94,14 @@
         <div class="form-group"><label>Full Name</label><input type="text" id="rName"/></div>
         <div class="form-row">
           <div class="form-group"><label>Phone</label><input type="text" id="rPhone"/></div>
-          <div class="form-group"><label>Location</label><select id="rLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
+          <div class="form-group"><label>Location</label><select id="rLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option></select></div>
         </div>
         <button class="btn btn-green" onclick="toast('Profile saved!')">Save</button>
       </div>
     </div>
   </div>
 </div>
-<script src="../js/data.js"></script>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 function showTab(id,el){
   document.querySelectorAll('[id^=tab-]').forEach(t=>t.classList.add('hidden'));
@@ -165,7 +156,7 @@ function renderMyReqs(){
         <span>📅 ${r.date||'Flexible'}</span><span>🕐 ${r.time||'Flexible'}</span>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-green btn-sm" onclick="openWA('919999999999','Update on my ${encodeURIComponent(r.service)} request.')">💬 Chat</button>
+        <button class="btn btn-green btn-sm" onclick="openWA('919121600133','Update on my ${encodeURIComponent(r.service)} request.')">💬 Chat</button>
         <button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="cancelReq('${r.id}')">Cancel</button>
       </div>
     </div>`).join('');
@@ -183,7 +174,7 @@ function renderBrowseServices(){
         <div class="card-title">${s.title}</div>
         <div class="card-price">₹${s.price}/${s.unit}</div>
         <div class="card-location">📍 ${s.location}</div>
-        <button class="btn btn-green btn-full btn-sm" onclick="openWA('919999999999','Hi, I need ${encodeURIComponent(s.title)} service.')">💬 Chat Now</button>
+        <button class="btn btn-green btn-full btn-sm" onclick="openWA('919121600133','Hi, I need ${encodeURIComponent(s.title)} service.')">💬 Chat Now</button>
       </div>
     </div>`).join('');
 }

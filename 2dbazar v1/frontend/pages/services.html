@@ -1,24 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Services — 2D Bazaar</title>
+<title>Services — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div class="nav-links">
       <a href="../index.html">Home</a>
       <a href="services.html" class="active">Services</a>
@@ -52,7 +43,7 @@
     </select>
     <select id="locFilter">
       <option value="">All Locations</option>
-      <option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
+      <option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
     </select>
     <select id="priceFilter">
       <option value="">Any Price</option>
@@ -99,7 +90,7 @@
     <div class="form-row">
       <div class="form-group"><label>Budget (₹)</label><input type="number" id="reqBudget" placeholder="e.g. 500"/></div>
       <div class="form-group"><label>Location</label>
-        <select id="reqLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option></select>
+        <select id="reqLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option></select>
       </div>
     </div>
     <div class="form-group"><label>Preferred Date</label><input type="date" id="reqDate"/></div>
@@ -107,8 +98,8 @@
   </div>
 </div>
 
-<a href="https://wa.me/919999999999" class="wa-float">💬</a>
-<script src="../js/data.js"></script>
+<a href="https://wa.me/919121600133" class="wa-float">💬</a>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 let activeTab = '';
 function renderNav() {
@@ -140,14 +131,14 @@ function renderServices(list) {
           <span class="rating">${stars(s.rating)}</span>
           <span style="font-size:12px;color:#64748b;">${s.rating} (${s.reviews} reviews)</span>
         </div>
-        <button class="btn btn-green btn-full btn-sm" onclick="openWA('919999999999','Hi, I need ${encodeURIComponent(s.title)} service from 2D Bazaar.')">
+        <button class="btn btn-green btn-full btn-sm" onclick="waService('${s.id}')">
           💬 Chat on WhatsApp
         </button>
       </div>
     </div>`).join('');
 }
 function getFiltered() {
-  let list = DB.get('services').filter(s => s.approval_status !== 'Pending');
+  let list = DB.get('services');
   const q = document.getElementById('searchQ').value.toLowerCase();
   const cat = document.getElementById('catFilter').value;
   const loc = document.getElementById('locFilter').value;
@@ -193,8 +184,7 @@ function submitRequest() {
     desc, budget:document.getElementById('reqBudget').value,
     location:document.getElementById('reqLoc').value,
     date:document.getElementById('reqDate').value,
-    userId:Auth.current().id, status:'Open', ts:Date.now(),
-    approval_status: 'Pending'
+    userId:Auth.current().id, status:'Open', ts:Date.now()
   });
   DB.set('service_requests',reqs);
   toast('Request posted! Providers will contact you soon.');

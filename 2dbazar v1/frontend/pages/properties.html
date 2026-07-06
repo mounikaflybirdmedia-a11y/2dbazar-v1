@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KTW607FH1F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KTW607FH1F');
-</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Properties — 2D Bazaar</title>
+<title>Properties — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div class="nav-links">
       <a href="../index.html">Home</a><a href="services.html">Services</a>
       <a href="jobs.html">Jobs</a><a href="marketplace.html">Marketplace</a><a href="properties.html" class="active">Properties</a>
@@ -38,7 +29,7 @@
     <select id="propType"><option value="">All Types</option><option>Plot</option><option>House</option><option>Apartment</option></select>
     <select id="propLoc">
       <option value="">All Locations</option>
-      <option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
+      <option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option><option>Parvathipuram</option>
     </select>
     <select id="propPrice">
       <option value="">Any Budget</option>
@@ -89,19 +80,19 @@
     <div class="form-row">
       <div class="form-group"><label>Area</label><input type="text" id="ptArea" placeholder="e.g. 900 sqft"/></div>
       <div class="form-group"><label>Location</label>
-        <select id="ptLoc"><option>Vijayanagaram</option><option>Vizag</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
+        <select id="ptLoc"><option>Vijayanagaram</option><option>Vizianagaram</option><option>Bobbili</option><option>Salur</option></select>
       </div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Facing</label><select id="ptFacing"><option>East</option><option>West</option><option>North</option><option>South</option><option>North-East</option></select></div>
-      <div class="form-group"><label>Image URL</label><input type="url" id="ptImg" placeholder="https://..."/> <input type="file" accept="image/*" style="margin-top:8px;font-size:12px;" onchange="const file=this.files[0];if(file){const reader=new FileReader();reader.onload=e=>document.getElementById(\'ptImg\').value=e.target.result;reader.readAsDataURL(file);}"/></div>
+      <div class="form-group"><label>Image URL</label><input type="url" id="ptImg" placeholder="https://..."/></div>
     </div>
     <button class="btn btn-full" style="background:#b45309;color:#fff;" onclick="submitProperty()">List Property</button>
   </div>
 </div>
 
-<a href="https://wa.me/919999999999" class="wa-float">💬</a>
-<script src="../js/data.js"></script>
+<a href="https://wa.me/919121600133" class="wa-float">💬</a>
+<script src="../js/data.js?v=1781159231"></script>
 <script>
 let propTab='';
 function renderNav(){
@@ -131,14 +122,14 @@ function renderProps(list){
           <span>📐 ${p.area}</span><span>📍 ${p.location}</span>
           <span>🧭 ${p.facing} Facing</span><span>👤 ${p.owner}</span>
         </div>
-        <button class="btn btn-green btn-full btn-sm" onclick="event.stopPropagation();openWA('${p.contact||'919999999999'}','Hi, I am interested in your property: ${encodeURIComponent(p.title)} listed on 2D Bazaar.')">
+        <button class="btn btn-green btn-full btn-sm" onclick="event.stopPropagation();waProperty('${p.id}')">
           💬 Contact Owner
         </button>
       </div>
     </div>`).join('');
 }
 function getProps(){
-  let list=DB.get('properties').filter(p=>p.approval_status!=='Pending');
+  let list=DB.get('properties');
   const q=document.getElementById('propSearch').value.toLowerCase();
   const type=document.getElementById('propType').value;
   const loc=document.getElementById('propLoc').value;
@@ -164,7 +155,7 @@ function openPropDetail(p){
   document.getElementById('pdPrice').textContent=formatPrice(p.price);
   document.getElementById('pdType').textContent=p.type;
   document.getElementById('pdMeta').innerHTML=`<span>📐 Area: ${p.area}</span><span>📍 ${p.location}</span><span>🧭 ${p.facing} Facing</span><span>🏗️ ${p.floors||0} Floor(s)</span><span>🚗 Parking: ${p.parking?'Yes':'No'}</span><span>👤 ${p.owner}</span>`;
-  document.getElementById('pdWA').onclick=()=>openWA(p.contact||'919999999999',`Hi, I am interested in your property: ${p.title} (${formatPrice(p.price)}).`);
+  document.getElementById('pdWA').onclick=()=>waProperty(p.id);
   document.getElementById('pdOffer').onclick=()=>{toast('Offer sent to owner!');closePropDetail();};
   document.getElementById('propDetailModal').classList.remove('hidden');
 }
@@ -186,8 +177,7 @@ function submitProperty(){
     location:document.getElementById('ptLoc').value,
     facing:document.getElementById('ptFacing').value,
     img:document.getElementById('ptImg').value||'https://placehold.co/400x200/fef3c7/92400e?text=Property',
-    owner:user.name,contact:user.phone,parking:false,floors:1,
-    approval_status: 'Pending'
+    owner:user.name,contact:user.phone,parking:false,floors:1
   });
   DB.set('properties',props);
   toast('Property listed!');closePropModal();renderProps(getProps());
