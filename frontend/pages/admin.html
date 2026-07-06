@@ -193,6 +193,19 @@
   </div>
 </div>
 
+
+<!-- DYNAMIC EDIT MODAL -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div class="card" style="padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;">
+    <h2 id="editModalTitle" style="margin-bottom:16px;">Edit Item</h2>
+    <div id="editModalBody"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="btn btn-green" style="flex:1;" onclick="saveEdit()">Save Changes</button>
+      <button class="btn btn-outline" style="flex:1;" onclick="closeEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script src="../js/data.js"></script>
 <script>
 const ROLE_LABELS={admin:'Admin',service_provider:'Provider',service_receiver:'Customer',employer:'Employer',job_seeker:'Job Seeker',seller:'Seller',buyer:'Buyer'};
@@ -300,41 +313,101 @@ function deleteUser(id){
 }
 
 
-function editUser(id) {
-  const users = DB.get('users');
-  const u = users.find(x => x.id === id);
-  if(!u) return;
-  const n = prompt('Edit User Name:', u.name);
-  if(n) { u.name = n; DB.set('users', users); toast('User updated!'); renderUsers(); }
+
+let currentEditType = '';
+let currentEditId = '';
+
+function closeEditModal() {
+  document.getElementById('editModal').style.display = 'none';
 }
-function editService(id) {
-  const list = DB.get('services');
+
+function openEditModal(type, id, title) {
+  currentEditType = type;
+  currentEditId = id;
+  const list = DB.get(type);
   const item = list.find(x => x.id === id);
-  if(!item) return;
-  const n = prompt('Edit Service Title:', item.title);
-  if(n) { item.title = n; DB.set('services', list); toast('Service updated!'); renderServicesTable(); }
+  if (!item) return;
+
+  document.getElementById('editModalTitle').textContent = title;
+  
+  let html = '';
+  const excludeKeys = ['id', 'password', 'avatar']; 
+  for (let key in item) {
+    if (excludeKeys.includes(key)) continue;
+    let val = item[key];
+    if (val === null || val === undefined) val = '';
+    
+    let inputHtml = `<input type="text" id="edit_field_${key}" value="${val}" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;font-family:inherit;"/>`;
+    
+    if (key === 'role') {
+        inputHtml = `<select id="edit_field_${key}" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;font-family:inherit;">
+            <option value="admin" ${val==='admin'?'selected':''}>Admin</option>
+            <option value="service_provider" ${val==='service_provider'?'selected':''}>Provider</option>
+            <option value="service_receiver" ${val==='service_receiver'?'selected':''}>Customer</option>
+            <option value="employer" ${val==='employer'?'selected':''}>Employer</option>
+            <option value="job_seeker" ${val==='job_seeker'?'selected':''}>Job Seeker</option>
+            <option value="seller" ${val==='seller'?'selected':''}>Seller</option>
+            <option value="buyer" ${val==='buyer'?'selected':''}>Buyer</option>
+        </select>`;
+    } else if (key === 'approval_status') {
+        inputHtml = `<select id="edit_field_${key}" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;font-family:inherit;">
+            <option value="Pending" ${val==='Pending'?'selected':''}>Pending</option>
+            <option value="Approved" ${val==='Approved'?'selected':''}>Approved</option>
+            <option value="Rejected" ${val==='Rejected'?'selected':''}>Rejected</option>
+        </select>`;
+    } else if (key === 'desc' || key === 'description') {
+        inputHtml = `<textarea id="edit_field_${key}" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;font-family:inherit;min-height:80px;">${val}</textarea>`;
+    }
+
+    html += `<div class="form-group" style="margin-bottom:12px;text-align:left;">
+      <label style="font-size:13px;font-weight:600;text-transform:capitalize;color:#475569;">${key.replace(/_/g, ' ')}</label>
+      ${inputHtml}
+    </div>`;
+  }
+
+  document.getElementById('editModalBody').innerHTML = html;
+  document.getElementById('editModal').style.display = 'flex';
 }
-function editJob(id) {
-  const list = DB.get('jobs');
-  const item = list.find(x => x.id === id);
-  if(!item) return;
-  const n = prompt('Edit Job Title:', item.title);
-  if(n) { item.title = n; DB.set('jobs', list); toast('Job updated!'); renderJobsTable(); }
+
+function saveEdit() {
+  const list = DB.get(currentEditType);
+  const itemIndex = list.findIndex(x => x.id === currentEditId);
+  if (itemIndex === -1) return;
+
+  const item = list[itemIndex];
+  const excludeKeys = ['id', 'password', 'avatar']; 
+  for (let key in item) {
+    if (excludeKeys.includes(key)) continue;
+    const el = document.getElementById(`edit_field_${key}`);
+    if (el) {
+       if (typeof item[key] === 'number') {
+           item[key] = Number(el.value) || 0;
+       } else {
+           item[key] = el.value;
+       }
+    }
+  }
+
+  DB.set(currentEditType, list);
+  toast('Item updated successfully!');
+  closeEditModal();
+  
+  if (currentEditType === 'users') { allUsers = DB.get('users'); filterUsers(); }
+  if (currentEditType === 'services') renderServicesTable();
+  if (currentEditType === 'jobs') renderJobsTable();
+  if (currentEditType === 'products') renderProductsTable();
+  if (currentEditType === 'properties') renderPropsTable();
+  
+  renderApprovals();
+  init();
 }
-function editProduct(id) {
-  const list = DB.get('products');
-  const item = list.find(x => x.id === id);
-  if(!item) return;
-  const n = prompt('Edit Product Name:', item.name);
-  if(n) { item.name = n; DB.set('products', list); toast('Product updated!'); renderProductsTable(); }
-}
-function editProp(id) {
-  const list = DB.get('properties');
-  const item = list.find(x => x.id === id);
-  if(!item) return;
-  const n = prompt('Edit Property Title:', item.title);
-  if(n) { item.title = n; DB.set('properties', list); toast('Property updated!'); renderPropsTable(); }
-}
+
+function editUser(id) { openEditModal('users', id, 'Edit User Details'); }
+function editService(id) { openEditModal('services', id, 'Edit Service Details'); }
+function editJob(id) { openEditModal('jobs', id, 'Edit Job Details'); }
+function editProduct(id) { openEditModal('products', id, 'Edit Product Details'); }
+function editProp(id) { openEditModal('properties', id, 'Edit Property Details'); }
+
 function renderServicesTable(){
   const list=DB.get('services');
   document.getElementById('servicesTable').innerHTML=list.map(s=>`<tr>
@@ -451,20 +524,13 @@ function editApprovalItem(type, id) {
   else if (type === 'products') editProduct(id);
   else if (type === 'properties') editProp(id);
   else if (type === 'service_requests') {
-    const list = DB.get('service_requests');
-    const item = list.find(x => x.id === id);
-    if(!item) return;
-    const n = prompt('Edit Request Description/Title:', item.desc || item.service || item.title);
-    if(n) { 
-        if(item.desc) item.desc = n; 
-        else if(item.service) item.service = n; 
-        else item.title = n;
-        DB.set('service_requests', list); 
-        toast('Request updated!'); 
-    }
+    openEditModal('service_requests', id, 'Edit Service Request');
   }
-  renderApprovals();
+  else {
+    renderApprovals();
+  }
 }
+
 
 function renderAnalytics(){
   const apps=DB.get('job_applications');
