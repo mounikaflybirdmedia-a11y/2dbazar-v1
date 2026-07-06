@@ -488,9 +488,11 @@ function renderApprovals(){
         <td style="font-weight:600;font-size:13px;">${title}</td>
         <td style="font-size:13px;">${submittedBy}</td>
         <td>
-          <button class="btn btn-sm" style="background:#3b82f6;color:#fff;" onclick="editApprovalItem('${type}', '${item.id}')">Edit</button>
-          <button class="btn btn-sm btn-green" onclick="approveItem('${type}', '${item.id}')">Approve</button>
-          <button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="rejectItem('${type}', '${item.id}')">Reject</button>
+          <div style="display:flex;gap:6px;justify-content:flex-start;flex-wrap:wrap;">
+            <button class="btn btn-sm" style="background:#3b82f6;color:#fff;" onclick="editApprovalItem('${type}', '${item.id}')">Edit</button>
+            <button class="btn btn-sm btn-green" onclick="approveItem('${type}', '${item.id}')">Approve</button>
+            <button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="rejectItem('${type}', '${item.id}')">Reject</button>
+          </div>
         </td>
       </tr>`;
     });
