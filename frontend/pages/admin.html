@@ -289,7 +289,7 @@ function filterUsers(){
     <td style="font-size:13px;">${u.email}</td>
     <td><span class="chip ${ROLE_CHIPS[u.role]||'chip-gray'}">${ROLE_LABELS[u.role]||u.role}</span></td>
     <td style="font-size:13px;">${u.location||'—'}</td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editUser('${u.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteUser('${u.id}')">Remove</button></td>
+    <td><div style="display:flex;gap:6px;justify-content:center;"><button class="btn btn-sm" style="background:#3b82f6;color:#fff;" onclick="editUser('${u.id}')">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteUser('${u.id}')">Remove</button></div></td>
   </tr>`).join('');
 }
 function deleteUser(id){
@@ -343,7 +343,7 @@ function renderServicesTable(){
     <td style="color:#25D366;font-weight:700;">₹${s.price}/${s.unit}</td>
     <td style="font-size:13px;">${s.location}</td>
     <td><span class="chip chip-green">${s.status||'Active'}</span></td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editService('${s.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteService('${s.id}')">Remove</button></td>
+    <td><div style="display:flex;gap:6px;justify-content:center;"><button class="btn btn-sm" style="background:#3b82f6;color:#fff;" onclick="editService('${s.id}')">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteService('${s.id}')">Remove</button></div></td>
   </tr>`).join('');
 }
 function deleteService(id){
@@ -359,7 +359,7 @@ function renderJobsTable(){
     <td style="font-size:13px;">${j.salary}</td>
     <td style="font-size:13px;">${j.location}</td>
     <td style="text-align:center;">${j.openings}</td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editJob('${j.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteJob('${j.id}')">Remove</button></td>
+    <td><div style="display:flex;gap:6px;justify-content:center;"><button class="btn btn-sm" style="background:#3b82f6;color:#fff;" onclick="editJob('${j.id}')">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteJob('${j.id}')">Remove</button></div></td>
   </tr>`).join('');
 }
 function deleteJob(id){
@@ -375,7 +375,7 @@ function renderProductsTable(){
     <td style="color:#25D366;font-weight:700;">${formatPrice(p.price)}</td>
     <td style="font-size:13px;">${p.seller}</td>
     <td><span class="chip ${p.condition==='New'?'chip-green':'chip-orange'}">${p.condition}</span></td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editProduct('${p.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProduct('${p.id}')">Remove</button></td>
+    <td><div style="display:flex;gap:6px;justify-content:center;"><button class="btn btn-sm" style="background:#3b82f6;color:#fff;" onclick="editProduct('${p.id}')">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProduct('${p.id}')">Remove</button></div></td>
   </tr>`).join('');
 }
 function deleteProduct(id){
@@ -391,7 +391,7 @@ function renderPropsTable(){
     <td style="color:#25D366;font-weight:700;">${formatPrice(p.price)}</td>
     <td style="font-size:13px;">${p.location}</td>
     <td style="font-size:13px;">${p.owner}</td>
-    <td><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="editProp('${p.id}')" style="margin-right:5px;">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProp('${p.id}')">Remove</button></td>
+    <td><div style="display:flex;gap:6px;justify-content:center;"><button class="btn btn-sm" style="background:#3b82f6;color:#fff;" onclick="editProp('${p.id}')">Edit</button><button class="btn btn-sm" style="background:#ef4444;color:#fff;" onclick="deleteProp('${p.id}')">Remove</button></div></td>
   </tr>`).join('');
 }
 function deleteProp(id){

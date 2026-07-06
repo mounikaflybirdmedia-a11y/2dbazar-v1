@@ -256,9 +256,7 @@ function saveProfile(){
   if(typeof renderNav === 'function') renderNav();
   toast('Profile saved!');
 }
-  DB.set('current_user',user);
-  toast('Profile saved!');
-}
+
 function toggleDay(el){el.classList.toggle('active');}
 function saveAvailability(){toast('Availability updated!');}
 function renderReviews(){
