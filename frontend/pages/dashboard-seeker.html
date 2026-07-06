@@ -11,13 +11,13 @@
   gtag('config', 'G-KTW607FH1F');
 </script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Job Seeker Dashboard — 2D Bazaar</title>
+<title>Job Seeker Dashboard — 2DBazaar</title>
 <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span> Bazar</a>
+    <a href="../index.html" class="nav-logo"><span class="logo-badge">2D</span>Bazaar</a>
     <div style="display:flex;align-items:center;gap:10px;">
       <span id="navUser" style="font-size:14px;color:#64748b;"></span>
       <button onclick="Auth.logout();window.location.href='../index.html';" class="btn btn-outline btn-sm">Logout</button>
@@ -124,7 +124,7 @@ function renderOverview(apps){
         <td><strong>${a.jobTitle}</strong></td>
         <td style="font-size:12px;color:#64748b;">${timeAgo(a.ts)}</td>
         <td><span class="chip ${S_COLORS[a.status]||'chip-gray'}">${a.status}</span></td>
-        <td><button class="btn btn-outline btn-sm" onclick="openWA('919999999999','Hi, I applied for ${encodeURIComponent(a.jobTitle)} on 2D Bazaar. Can you share an update?')">Follow Up</button></td>
+        <td><button class="btn btn-outline btn-sm" onclick="openWA('919999999999','Hi, I applied for ${encodeURIComponent(a.jobTitle)} on 2DBazaar. Can you share an update?')">Follow Up</button></td>
       </tr>`).join('')}</tbody>
     </table></div>`:
     '<div class="empty-state"><div class="empty-icon">📋</div><h3>No applications yet</h3><p>Browse jobs and apply!</p><a href="jobs.html" class="btn btn-blue mt-2">Browse Jobs</a></div>';
